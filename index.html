@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#081a33" />
+  <meta name="description" content="Interactive Indian Railways structural visualisation gallery for CBS-0046, CBS-0045 and B-221-2024." />
+  <title>Railway Structural Explorer</title>
+  <style>
+    :root{
+      --navy:#07182f;--navy2:#0c2d52;--blue:#0e5ea8;--blue2:#1d7ed0;
+      --ink:#10243b;--muted:#607086;--paper:#f5f8fc;--card:#fff;
+      --line:#d9e3ef;--rail:#c93a35;--orange:#f08b2f;--green:#138f63;
+      --shadow:0 20px 60px rgba(7,24,47,.13);--radius:24px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+    button,a{font:inherit}
+    a{color:inherit;text-decoration:none}
+    button{cursor:pointer}
+    .topbar{position:sticky;top:0;z-index:30;background:rgba(7,24,47,.92);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.09)}
+    .nav{max-width:1200px;margin:auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .brand{display:flex;align-items:center;gap:11px;color:#fff;font-weight:800;letter-spacing:.01em}
+    .brand-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#fff,#dce9f7);display:grid;place-items:center;box-shadow:0 5px 18px rgba(0,0,0,.2)}
+    .brand-mark svg{width:26px;height:26px}
+    .brand small{display:block;font-size:10px;font-weight:700;letter-spacing:.14em;color:#94b8db;text-transform:uppercase;margin-top:1px}
+    .navlinks{display:flex;align-items:center;gap:8px}
+    .navlinks a{color:#c9d8e8;font-size:13px;font-weight:700;padding:9px 12px;border-radius:10px}
+    .navlinks a:hover{background:rgba(255,255,255,.08);color:#fff}
+    .hero{position:relative;min-height:680px;background:
+      radial-gradient(circle at 78% 12%,rgba(28,119,194,.27),transparent 28%),
+      linear-gradient(135deg,#06172d 0%,#0a2849 60%,#0c3156 100%);color:#fff;overflow:hidden}
+    .hero:after{content:"";position:absolute;inset:auto 0 0;height:140px;background:linear-gradient(to bottom,transparent,rgba(0,0,0,.18))}
+    .hero-grid{max-width:1200px;margin:auto;padding:78px 22px 205px;display:grid;grid-template-columns:1.02fr .98fr;gap:58px;align-items:center;position:relative;z-index:2}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#bcd7ee}
+    .signal-dot{width:8px;height:8px;border-radius:50%;background:#58df9a;box-shadow:0 0 14px #58df9a}
+    h1{font-size:clamp(46px,7vw,82px);line-height:.94;letter-spacing:-.055em;margin:20px 0 22px;max-width:790px}
+    .hero p{font-size:18px;line-height:1.7;color:#bfd0e2;max-width:680px;margin:0}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+    .btn{border:0;border-radius:14px;padding:13px 18px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.2s transform,.2s background}
+    .btn:hover{transform:translateY(-2px)}
+    .btn.primary{background:#fff;color:var(--navy)}
+    .btn.ghost{background:rgba(255,255,255,.09);color:#fff;border:1px solid rgba(255,255,255,.16)}
+    .hero-panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:26px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.2);backdrop-filter:blur(12px)}
+    .hero-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:14px}
+    .hero-panel-head strong{font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+    .live{font-size:11px;color:#9fc8e8}
+    .mini-track{height:250px;position:relative;border-radius:18px;overflow:hidden;background:linear-gradient(#7aa6c8 0 42%,#789370 42% 58%,#565b60 58% 100%)}
+    .mini-track:before{content:"";position:absolute;inset:58% 0 0;background:repeating-linear-gradient(90deg,transparent 0 40px,#574a3f 41px 49px,transparent 50px 78px),linear-gradient(#7d8185 0 12%,#363c43 12% 20%,#777d82 20% 24%,#3a3f43 24% 33%,#686b6f 33% 37%,#383d41 37%);transform:perspective(240px) rotateX(50deg);transform-origin:top}
+    .mini-poles{position:absolute;inset:22px 10px 90px;background:repeating-linear-gradient(90deg,transparent 0 108px,rgba(55,64,72,.9) 109px 112px,transparent 113px 190px)}
+    .mini-wire{position:absolute;left:0;right:0;top:54px;border-top:2px solid rgba(45,51,59,.78)}
+    .train-wrap{position:absolute;left:0;right:0;bottom:84px;height:85px;pointer-events:none}
+    .train{position:absolute;width:300px;height:72px;left:-340px;bottom:0;filter:drop-shadow(0 9px 8px rgba(0,0,0,.28));will-change:transform}
+    .train.play{animation:trainPass 7.3s cubic-bezier(.18,.68,.4,.99) forwards}
+    .train-body{position:absolute;inset:6px 0 8px;border-radius:40px 24px 18px 15px;background:linear-gradient(#fdfefe 0 55%,#d8e4ed 56% 72%,#135f9c 73% 90%,#f0f5f8 91%);border:1px solid rgba(0,0,0,.2)}
+    .train-nose{position:absolute;right:-25px;top:9px;width:75px;height:55px;border-radius:55% 70% 26% 25%;background:linear-gradient(#fff 0 58%,#d6e4ed 59% 72%,#1263a2 73% 90%,#fff 91%);transform:skewX(-10deg)}
+    .windshield{position:absolute;right:12px;top:14px;width:54px;height:18px;border-radius:14px 20px 7px 7px;background:#162f44;transform:skewX(-8deg)}
+    .windows{position:absolute;left:28px;right:76px;top:19px;height:15px;background:repeating-linear-gradient(90deg,#233e54 0 19px,transparent 20px 29px);border-radius:4px;opacity:.95}
+    .wheel{position:absolute;bottom:1px;width:17px;height:17px;border-radius:50%;background:#1d2126;border:4px solid #555}.w1{left:45px}.w2{left:85px}.w3{right:55px}
+    @keyframes trainPass{0%{transform:translateX(0)}100%{transform:translateX(calc(100vw + 700px))}}
+    .train-status{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:15px}
+    .countdown{font-size:12px;color:#c4d7e8}.countdown b{color:#fff}
+    .mini-btn{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;padding:8px 11px;border-radius:10px;font-size:12px;font-weight:800}
+    .track-scene{position:absolute;left:0;right:0;bottom:0;height:138px;z-index:3;pointer-events:none}
+    .rail-bed{position:absolute;left:-4%;right:-4%;bottom:-20px;height:95px;transform:perspective(400px) rotateX(52deg);background:
+      repeating-linear-gradient(90deg,transparent 0 48px,#674d38 49px 59px,transparent 60px 92px),
+      linear-gradient(to bottom,#999 0 11%,#484f55 12% 20%,#8d9397 21% 29%,#333a3f 30% 39%,#777d80 40% 100%)}
+    .section{max-width:1200px;margin:auto;padding:88px 22px}
+    .section-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:35px}
+    .kicker{color:var(--blue);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.16em}
+    h2{font-size:clamp(34px,5vw,54px);letter-spacing:-.045em;line-height:1.02;margin:8px 0 0}
+    .section-head p{max-width:460px;color:var(--muted);line-height:1.65;margin:0}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 10px 35px rgba(7,24,47,.05);transition:.25s transform,.25s box-shadow}
+    .card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+    .thumb{position:relative;aspect-ratio:1.42/1;background:#dce7f2;overflow:hidden}
+    .thumb img{width:100%;height:100%;object-fit:cover;transition:.45s transform}
+    .card:hover .thumb img{transform:scale(1.03)}
+    .tag{position:absolute;top:14px;left:14px;background:rgba(7,24,47,.9);color:#fff;border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(7px);padding:7px 10px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.08em}
+    .zoomhint{position:absolute;right:14px;bottom:14px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.24);background:rgba(7,24,47,.8);color:#fff;display:grid;place-items:center;font-size:19px}
+    .card-body{padding:20px}
+    .card h3{font-size:20px;margin:0 0 8px;letter-spacing:-.02em}
+    .card p{font-size:14px;line-height:1.6;color:var(--muted);margin:0 0 16px;min-height:67px}
+    .metrics{display:flex;gap:7px;flex-wrap:wrap}
+    .metric{font-size:11px;font-weight:800;background:#eef4fa;color:#31526f;padding:7px 9px;border-radius:9px}
+    .detail{margin-top:62px;border-radius:30px;background:#071a33;color:#fff;overflow:hidden;box-shadow:0 28px 85px rgba(7,24,47,.18)}
+    .tabs{display:flex;gap:8px;padding:16px;background:#0a2342;border-bottom:1px solid rgba(255,255,255,.08);overflow:auto}
+    .tab{white-space:nowrap;border:1px solid rgba(255,255,255,.1);background:transparent;color:#abc4dc;border-radius:11px;padding:10px 13px;font-weight:800;font-size:12px}
+    .tab.active{background:#fff;color:#0a2342;border-color:#fff}
+    .detail-grid{display:grid;grid-template-columns:1.05fr .95fr;min-height:525px}
+    .detail-image{min-width:0;padding:18px;background:#051326;display:flex;align-items:center;justify-content:center}
+    .detail-image img{max-width:100%;max-height:500px;border-radius:16px;cursor:zoom-in;box-shadow:0 10px 35px rgba(0,0,0,.25)}
+    .detail-copy{padding:34px}
+    .detail-title{font-size:31px;margin:0 0 7px;letter-spacing:-.035em}
+    .detail-sub{color:#92afcb;font-size:13px;line-height:1.6;margin:0 0 24px}
+    .dimension-table{width:100%;border-collapse:collapse;font-size:12px}
+    .dimension-table th,.dimension-table td{padding:10px 9px;border-bottom:1px solid rgba(255,255,255,.09);text-align:left;vertical-align:top}
+    .dimension-table th{color:#8baac7;font-size:10px;text-transform:uppercase;letter-spacing:.1em}
+    .dimension-table td:last-child{font-weight:800;color:#fff}
+    .note{margin-top:18px;border-left:3px solid var(--orange);background:rgba(255,255,255,.05);border-radius:0 10px 10px 0;padding:12px 14px;color:#bcd0e3;font-size:12px;line-height:1.55}
+    .experience{background:#e9f0f7;border-top:1px solid #dbe5ee;border-bottom:1px solid #dbe5ee}
+    .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .feature{background:#fff;border:1px solid #d8e3ee;border-radius:20px;padding:23px}
+    .feature .icon{width:42px;height:42px;border-radius:13px;background:#eaf3fb;display:grid;place-items:center;font-size:20px;margin-bottom:14px}
+    .feature h3{font-size:17px;margin:0 0 7px}.feature p{font-size:13px;color:var(--muted);line-height:1.6;margin:0}
+    .disclaimer{max-width:1200px;margin:0 auto;padding:0 22px 70px}
+    .disclaimer-inner{border:1px solid #e4c19d;background:#fff8ef;border-radius:18px;padding:18px 20px;color:#6a4d31;font-size:12px;line-height:1.6}
+    footer{background:#07182f;color:#a5bdd3;padding:34px 22px}
+    .footer-in{max-width:1200px;margin:auto;display:flex;justify-content:space-between;gap:20px;align-items:center;font-size:12px}
+    .footer-in strong{color:#fff}
+    .modal{position:fixed;inset:0;z-index:60;background:rgba(2,8,16,.94);display:none;flex-direction:column}
+    .modal.open{display:flex}
+    .modalbar{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:#fff}
+    .modalbar strong{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .modal-controls{display:flex;gap:7px}
+    .modal-controls button{width:39px;height:39px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;border-radius:10px;font-weight:900}
+    .viewer{flex:1;overflow:hidden;display:grid;place-items:center;touch-action:none;cursor:grab}
+    .viewer:active{cursor:grabbing}
+    .viewer img{max-width:88vw;max-height:84vh;transform-origin:center;user-select:none;pointer-events:none;transition:transform .05s linear}
+    .helper{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);color:#d6e1ec;border:1px solid rgba(255,255,255,.12);padding:8px 11px;border-radius:999px;font-size:11px;white-space:nowrap}
+    @media(max-width:900px){
+      .navlinks{display:none}.hero{min-height:auto}.hero-grid{grid-template-columns:1fr;padding-top:56px;padding-bottom:165px;gap:35px}.hero-panel{max-width:670px}
+      .cards{grid-template-columns:1fr}.thumb{aspect-ratio:16/9}.card p{min-height:0}.detail-grid{grid-template-columns:1fr}.detail-copy{padding:25px}.detail-image{padding:14px}.feature-grid{grid-template-columns:1fr}.section-head{align-items:start;flex-direction:column}
+    }
+    @media(max-width:560px){
+      .nav{padding:11px 14px}.brand{font-size:13px}.brand-mark{width:34px;height:34px}.hero-grid{padding:46px 16px 145px}.hero p{font-size:15px}.hero-actions .btn{flex:1;min-width:150px}
+      .hero-panel{padding:12px;border-radius:20px}.mini-track{height:205px}.train{width:235px;height:63px}.train-wrap{bottom:67px}
+      .section{padding:65px 15px}.cards{gap:15px}.card{border-radius:20px}.card-body{padding:17px}.detail{margin-top:40px;border-radius:22px}.tabs{padding:11px}.detail-title{font-size:25px}
+      .dimension-table{font-size:11px}.dimension-table th,.dimension-table td{padding:8px 6px}.detail-copy{padding:20px 16px 24px}.footer-in{flex-direction:column;align-items:flex-start}
+      .helper{bottom:12px;font-size:10px;max-width:90vw;text-align:center}.viewer img{max-width:96vw;max-height:80vh}
+    }
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.train.play{animation-duration:.01ms}.card,.thumb img,.btn{transition:none}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" fill="none"><path d="M9 9h22v15c0 5-4 8-11 8S9 29 9 24V9Z" fill="#0d5ea6"/><rect x="12" y="12" width="7" height="6" rx="1" fill="white"/><rect x="21" y="12" width="7" height="6" rx="1" fill="white"/><path d="M12 25h16M14 31l-3 4m15-4 3 4" stroke="#c73b36" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </span>
+        <span>Railway Structural Explorer<small>Engineering visualisation</small></span>
+      </a>
+      <div class="navlinks">
+        <a href="#drawings">Drawings</a><a href="#details">Dimensions</a><a href="#experience">Experience</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow"><span class="signal-dot"></span> Indian Railways structural study</span>
+          <h1>See the drawing.<br>Understand the structure.</h1>
+          <p>A visual engineering explorer for three supplied railway drawings — combining 3D interpretation, key dimensions, construction details and an interactive, mobile-friendly viewing experience.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#drawings">Explore 3D designs ↓</a>
+            <a class="btn ghost" href="#details">View dimensions</a>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <div class="hero-panel-head"><strong>Live track visual</strong><span class="live">Vande Bharat-style pass · 30 s cycle</span></div>
+          <div class="mini-track" aria-label="Animated Vande Bharat-style train passing on railway track">
+            <div class="mini-poles"></div><div class="mini-wire"></div>
+            <div class="train-wrap"><div class="train" id="train"><div class="train-body"><div class="windows"></div><div class="wheel w1"></div><div class="wheel w2"></div><div class="wheel w3"></div></div><div class="train-nose"><div class="windshield"></div></div></div></div>
+          </div>
+          <div class="train-status"><span class="countdown">Next scheduled pass in <b id="countdown">00:30</b></span><button class="mini-btn" id="trainToggle">Pause cycle</button></div>
+        </div>
+      </div>
+      <div class="track-scene"><div class="rail-bed"></div></div>
+    </section>
+
+    <section class="section" id="drawings">
+      <div class="section-head">
+        <div><div class="kicker">3D drawing gallery</div><h2>Three railway structures.<br>One clear interface.</h2></div>
+        <p>Select a drawing to inspect its generated 3D interpretation and switch the engineering dimension schedule below.</p>
+      </div>
+      <div class="cards">
+        <article class="card" data-project="cbs0046">
+          <div class="thumb"><img src="assets/cbs-0046.jpg" alt="CBS-0046 composite girder side pathway 3D visualisation"><span class="tag">CBS-0046</span><button class="zoomhint" aria-label="Open full-screen image">＋</button></div>
+          <div class="card-body"><h3>Composite Girder Side Pathway</h3><p>Side maintenance walkway fixed alongside a composite girder, including handrail, X-braced supports, runners and stiffener arrangement.</p><div class="metrics"><span class="metric">0.830 m pathway</span><span class="metric">1.200 m handrail</span><span class="metric">500 kg/m² load</span></div></div>
+        </article>
+        <article class="card" data-project="cbs0045">
+          <div class="thumb"><img src="assets/cbs-0045.jpg" alt="CBS-0045 open-web girder pathway 3D visualisation"><span class="tag">CBS-0045</span><button class="zoomhint" aria-label="Open full-screen image">＋</button></div>
+          <div class="card-body"><h3>Open-Web Girder Pathway</h3><p>Pathway installed through a 30.5 m open-web girder span, with detailed railing, chequered plate and support connections.</p><div class="metrics"><span class="metric">30.500 m span</span><span class="metric">0.700 m clear</span><span class="metric">1.000 m railing</span></div></div>
+        </article>
+        <article class="card" data-project="b221">
+          <div class="thumb"><img src="assets/b-221-2024.jpg" alt="B-221-2024 pier-cap access ladder 3D visualisation"><span class="tag">B-221-2024</span><button class="zoomhint" aria-label="Open full-screen image">＋</button></div>
+          <div class="card-body"><h3>Pier-Cap Access Ladder</h3><p>Access ladder between pier-cap inspection platform and composite girder deck with fixing plates, handrails and deck geometry.</p><div class="metrics"><span class="metric">5.200 m deck</span><span class="metric">0.250 m step c/c</span><span class="metric">1.676 m gauge</span></div></div>
+        </article>
+      </div>
+
+      <div class="detail" id="details">
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-tab="cbs0046">CBS-0046 · Composite pathway</button>
+          <button class="tab" data-tab="cbs0045">CBS-0045 · Open-web girder</button>
+          <button class="tab" data-tab="b221">B-221-2024 · Access ladder</button>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-image"><img id="detailImage" src="assets/cbs-0046.jpg" alt="Selected railway drawing visualisation"></div>
+          <div class="detail-copy">
+            <h3 class="detail-title" id="detailTitle"></h3>
+            <p class="detail-sub" id="detailSub"></p>
+            <table class="dimension-table"><thead><tr><th>Item</th><th>Dimension / specification</th></tr></thead><tbody id="dimensionRows"></tbody></table>
+            <div class="note" id="detailNote"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="experience" id="experience">
+      <div class="section">
+        <div class="section-head"><div><div class="kicker">Built for inspection</div><h2>Easy on phone.<br>Detailed on desktop.</h2></div><p>The same engineering information remains accessible without squeezing a desktop drawing into a tiny mobile layout.</p></div>
+        <div class="feature-grid">
+          <div class="feature"><div class="icon">⌕</div><h3>Zoomable drawings</h3><p>Open any visual full-screen, zoom with wheel or buttons, drag to pan, and pinch on supported touch screens.</p></div>
+          <div class="feature"><div class="icon">↔</div><h3>Responsive engineering tables</h3><p>Project tabs and dimension schedules adapt to narrow screens while keeping measurements readable.</p></div>
+          <div class="feature"><div class="icon">🚆</div><h3>30-second train cycle</h3><p>A lightweight Vande Bharat-style track animation runs without a heavy 3D engine, keeping the site fast on mobile.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="disclaimer"><div class="disclaimer-inner"><strong>Engineering note:</strong> This website is an independent visual interpretation of supplied drawings. It is intended for presentation and understanding, not fabrication or site execution. Where source information is provisional, variable, or conflicting, the drawing/specification should be verified before engineering use.</div></div>
+  </main>
+
+  <footer><div class="footer-in"><span><strong>Railway Structural Explorer</strong> · Supplied drawing visualisation</span><span>CBS-0046 · CBS-0045 · B-221-2024</span></div></footer>
+
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modalbar"><strong id="modalTitle">Drawing viewer</strong><div class="modal-controls"><button id="zoomOut" aria-label="Zoom out">−</button><button id="zoomReset" aria-label="Reset zoom">1:1</button><button id="zoomIn" aria-label="Zoom in">＋</button><button id="modalClose" aria-label="Close viewer">×</button></div></div>
+    <div class="viewer" id="viewer"><img id="modalImage" alt="Expanded railway visualisation"></div>
+    <div class="helper">Drag to pan · wheel / pinch to zoom · Esc to close</div>
+  </div>
+
+  <script>
+    const projects = {
+      cbs0046:{
+        title:"CBS-0046 · Composite Girder Side Pathway",
+        sub:"Side pathway arrangement on a composite girder with sectional cutaway, longitudinal supports and handrail geometry.",
+        image:"assets/cbs-0046.jpg",
+        rows:[
+          ["Pathway transverse dimension","0.830 m"],["Handrail above walkway","1.200 m"],["Shown longitudinal bays","4.400 / 4.300 / 4.400 m"],
+          ["Bracket spacing","Less than 7.000 m"],["New stiffener","0.160 × 0.016 m minimum"],["Web attachment (X)","0.600–2.000 m, girder-dependent"],
+          ["Standard spans listed","12.2 / 18.3 / 24.4 / 30.5 m"],["Trough opening shown","5.000 m"],["Track C/L to inner pathway reference","2.630 m"],["Pedestrian design load stated","500 kg/m²"]
+        ],
+        note:"Source visual notes a plate-thickness discrepancy between plan/detail/amended note. Confirm the final specification from the governing drawing before use."
+      },
+      cbs0045:{
+        title:"CBS-0045 · Open-Web Girder Pathway",
+        sub:"Provisional pathway arrangement through a 30.5 m open-web girder bridge with connection detail and walkway geometry.",
+        image:"assets/cbs-0045.jpg",
+        rows:[
+          ["Clear span","30.500 m"],["Bearing centres","31.926 m"],["Overall length","32.460 m"],["Truss panel (bearing to bearing)","5.321 m"],
+          ["Truss depth (intersection centres)","7.315 m"],["Pathway clear / overall width","0.700 / 0.800 m"],["Railing height","1.000 m"],
+          ["Post spacing along pathway","1.500 m"],["Pathway support spacing","Up to 3.000 m"],["Maximum overhang","1.000 m"],["Chequered plate detail","0.006 m"],
+          ["Drainage slope","1:200 away from track"],["Design live load stated","300 kg/m²"]
+        ],
+        note:"The supplied source drawing is marked PROVISIONAL. Refuge size and other unspecified setting shown in the visual are interpretive and should not be treated as fabrication information."
+      },
+      b221:{
+        title:"B-221-2024 · Pier-Cap Access Ladder",
+        sub:"Ladder between pier-cap inspection platform and composite girder deck, showing ladder geometry, deck width, bearings and fixing details.",
+        image:"assets/b-221-2024.jpg",
+        rows:[
+          ["RCC deck overall width","5.200 m"],["Internal deck dimension","4.800 m"],["Rail gauge","1.676 m"],["Bearing centre spacing","2.400 m"],
+          ["Ladder transverse dimension","0.400 m"],["Step spacing","0.250 m c/c"],["Handrail extension above platform","1.000 m"],
+          ["Minimum clearance at ladder foot","0.500 m"],["Ladder height","As required"],["Side angles / steps","L75 × 75 × 6"],["Handrail","40 NB (M) GI pipe"],
+          ["Steel finish","Primer + two coats aluminium paint"]
+        ],
+        note:"Visual identifies N.F. Railway / STUP, dated 29.02.2024, as the source. Ladder height is variable and must be verified for the actual site."
+      }
+    };
+
+    const rows = document.getElementById("dimensionRows");
+    const title = document.getElementById("detailTitle");
+    const sub = document.getElementById("detailSub");
+    const note = document.getElementById("detailNote");
+    const detailImage = document.getElementById("detailImage");
+
+    function selectProject(key, scroll=false){
+      const p=projects[key]; if(!p)return;
+      title.textContent=p.title; sub.textContent=p.sub; note.textContent=p.note; detailImage.src=p.image; detailImage.alt=p.title+" visualisation";
+      rows.innerHTML=p.rows.map(r=>"<tr><td>"+r[0]+"</td><td>"+r[1]+"</td></tr>").join("");
+      document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===key));
+      if(scroll) document.getElementById("details").scrollIntoView({behavior:"smooth",block:"start"});
+    }
+    document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>selectProject(t.dataset.tab)));
+    document.querySelectorAll(".card").forEach(card=>{
+      card.addEventListener("click",e=>{
+        if(e.target.closest(".zoomhint")) openViewer(projects[card.dataset.project].image,projects[card.dataset.project].title);
+        else selectProject(card.dataset.project,true);
+      });
+    });
+    selectProject("cbs0046");
+
+    // 30-second Vande Bharat-style pass cycle
+    const train=document.getElementById("train"), countdown=document.getElementById("countdown"), toggle=document.getElementById("trainToggle");
+    let paused=false,nextPass=Date.now()+30000,interval;
+    function runTrain(){
+      train.classList.remove("play"); void train.offsetWidth; train.classList.add("play");
+      nextPass=Date.now()+30000;
+    }
+    function tick(){
+      if(paused)return;
+      const sec=Math.max(0,Math.ceil((nextPass-Date.now())/1000));
+      countdown.textContent="00:"+String(sec).padStart(2,"0");
+      if(sec<=0)runTrain();
+    }
+    setTimeout(runTrain,700);
+    interval=setInterval(tick,250);
+    toggle.addEventListener("click",()=>{
+      paused=!paused;
+      toggle.textContent=paused?"Resume cycle":"Pause cycle";
+      if(!paused){nextPass=Date.now()+30000;tick();}
+    });
+
+    // Full-screen image viewer: mouse drag, wheel zoom, touch pan + pinch
+    const modal=document.getElementById("modal"),viewer=document.getElementById("viewer"),modalImage=document.getElementById("modalImage"),modalTitle=document.getElementById("modalTitle");
+    let scale=1,tx=0,ty=0,drag=false,lastX=0,lastY=0,lastPinch=null;
+    const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+    function applyTransform(){modalImage.style.transform="translate("+tx+"px,"+ty+"px) scale("+scale+")";}
+    function resetView(){scale=1;tx=0;ty=0;applyTransform();}
+    function openViewer(src,t){
+      modalImage.src=src;modalTitle.textContent=t;modal.classList.add("open");modal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";resetView();
+    }
+    function closeViewer(){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");document.body.style.overflow="";}
+    detailImage.addEventListener("click",()=>openViewer(detailImage.src,title.textContent));
+    document.getElementById("modalClose").addEventListener("click",closeViewer);
+    document.getElementById("zoomIn").addEventListener("click",()=>{scale=clamp(scale+.25,.5,5);applyTransform()});
+    document.getElementById("zoomOut").addEventListener("click",()=>{scale=clamp(scale-.25,.5,5);applyTransform()});
+    document.getElementById("zoomReset").addEventListener("click",resetView);
+    document.addEventListener("keydown",e=>{if(e.key==="Escape")closeViewer()});
+    viewer.addEventListener("wheel",e=>{e.preventDefault();scale=clamp(scale+(e.deltaY<0?.16:-.16),.5,5);applyTransform()},{passive:false});
+    viewer.addEventListener("pointerdown",e=>{if(e.pointerType==="touch")return;drag=true;lastX=e.clientX;lastY=e.clientY;viewer.setPointerCapture(e.pointerId)});
+    viewer.addEventListener("pointermove",e=>{if(!drag||e.pointerType==="touch")return;tx+=e.clientX-lastX;ty+=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;applyTransform()});
+    viewer.addEventListener("pointerup",()=>drag=false);
+    viewer.addEventListener("touchstart",e=>{
+      if(e.touches.length===1){lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;lastPinch=null}
+      if(e.touches.length===2){lastPinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)}
+    },{passive:false});
+    viewer.addEventListener("touchmove",e=>{
+      e.preventDefault();
+      if(e.touches.length===1){tx+=e.touches[0].clientX-lastX;ty+=e.touches[0].clientY-lastY;lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;applyTransform()}
+      if(e.touches.length===2){
+        const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+        if(lastPinch){scale=clamp(scale*(d/lastPinch),.5,5);applyTransform()} lastPinch=d;
+      }
+    },{passive:false});
+  </script>
+</body>
+</html>
