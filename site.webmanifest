@@ -1,9 +1,0 @@
-{
-  "name": "Railway Structural Explorer",
-  "short_name": "Railway Explorer",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#07182f",
-  "theme_color": "#07182f",
-  "description": "Interactive railway structural visualisation for CBS-0046, CBS-0045 and B-221-2024."
-}

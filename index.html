@@ -1,90 +1,20 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#88bce2">
-<title>Railway Visual Explorer</title>
-<style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#8dbce0;color:#111}
-button{font:inherit;cursor:pointer}
-.app{position:relative;width:100%;height:100dvh;overflow:hidden;background:linear-gradient(#85bee9 0 54%,#a9c998 54% 67%,#7f8b75 67% 100%)}
-.sky{position:absolute;inset:0 0 42% 0;background:
-radial-gradient(ellipse at 18% 24%,rgba(255,255,255,.92) 0 5%,transparent 6%),
-radial-gradient(ellipse at 26% 20%,rgba(255,255,255,.86) 0 7%,transparent 8%),
-radial-gradient(ellipse at 72% 18%,rgba(255,255,255,.82) 0 6%,transparent 7%),
-linear-gradient(#86bde5,#d9edf7)}
-.horizon{position:absolute;left:-3%;right:-3%;top:44%;height:19%;background:
-radial-gradient(ellipse at 5% 100%,#2e6b38 0 19%,transparent 20%),
-radial-gradient(ellipse at 14% 100%,#397a40 0 18%,transparent 19%),
-radial-gradient(ellipse at 25% 100%,#2e6d38 0 22%,transparent 23%),
-radial-gradient(ellipse at 38% 100%,#4d884b 0 19%,transparent 20%),
-radial-gradient(ellipse at 50% 100%,#2f6e38 0 22%,transparent 23%),
-radial-gradient(ellipse at 65% 100%,#4b8548 0 20%,transparent 21%),
-radial-gradient(ellipse at 78% 100%,#2e6b38 0 21%,transparent 22%),
-radial-gradient(ellipse at 92% 100%,#438246 0 24%,transparent 25%);
-opacity:.96}
-.ground{position:absolute;left:0;right:0;bottom:0;height:46%;background:linear-gradient(170deg,#9fb493 0 23%,#8c9b82 24% 39%,#69705f 40% 100%)}
-.ballast{position:absolute;left:-10%;right:-10%;bottom:-8%;height:39%;transform:perspective(700px) rotateX(56deg);transform-origin:top;background:
-repeating-linear-gradient(90deg,transparent 0 49px,#725f4c 50px 61px,transparent 62px 92px),
-linear-gradient(#a4a29a 0 23%,#555d5e 24% 30%,#8f918c 31% 43%,#4a5052 44% 52%,#777b78 53%)}
-.railA,.railB{position:absolute;height:7px;background:#353b3e;left:-5%;right:-5%;bottom:18%;transform:rotate(-2deg);box-shadow:0 3px 0 #8a8580}.railB{bottom:25%}
-.scene-img{position:absolute;z-index:4;left:50%;top:50%;width:min(86vw,1320px);max-height:82vh;transform:translate(-50%,-50%) scale(1);object-fit:contain;mix-blend-mode:multiply;filter:drop-shadow(0 18px 14px rgba(0,0,0,.20));transition:.35s ease}
-.vignette{position:absolute;inset:0;z-index:7;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.07),transparent 20%,transparent 82%,rgba(0,0,0,.20))}
-.switcher{position:absolute;z-index:20;left:50%;top:17px;transform:translateX(-50%);display:flex;gap:6px;background:rgba(255,255,255,.88);padding:6px;border-radius:8px;box-shadow:0 5px 20px rgba(0,0,0,.17);backdrop-filter:blur(9px)}
-.switcher button{border:0;background:transparent;padding:8px 11px;border-radius:5px;font-weight:800;font-size:11px;color:#234258;white-space:nowrap}.switcher button.active{background:#123e60;color:#fff}
-.brand{position:absolute;z-index:20;left:18px;top:17px;background:rgba(255,255,255,.9);padding:9px 12px;border-radius:7px;box-shadow:0 5px 18px rgba(0,0,0,.14)}.brand b{font-size:13px;color:#092b46}.brand small{display:block;font-size:8px;color:#617586;margin-top:2px;font-weight:700}
-.callout{position:absolute;z-index:15;background:rgba(255,255,255,.94);border-radius:4px;padding:6px 9px;font-size:12px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.15);white-space:nowrap}.callout:after{content:"";position:absolute;width:2px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.12);transform-origin:top center}.callout:before{content:"";position:absolute;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:9px solid white}
-.c1{left:10%;top:23%}.c1:after{height:77px;left:70%;top:100%;transform:rotate(21deg)}.c1:before{left:calc(70% + 27px);top:calc(100% + 69px);transform:rotate(21deg)}
-.c2{left:39%;top:14%}.c2:after{height:83px;left:48%;top:100%;transform:rotate(4deg)}.c2:before{left:calc(48% + 1px);top:calc(100% + 78px);transform:rotate(4deg)}
-.c3{right:9%;top:22%}.c3:after{height:76px;right:45%;top:100%;transform:rotate(-17deg)}.c3:before{right:calc(45% + 20px);top:calc(100% + 70px);transform:rotate(-17deg)}
-.c4{left:15%;bottom:24%}.c4:after{height:66px;left:66%;bottom:100%;transform:rotate(155deg)}.c4:before{left:calc(66% + 20px);bottom:calc(100% + 59px);transform:rotate(155deg)}
-.c5{right:18%;bottom:21%}.c5:after{height:72px;right:60%;bottom:100%;transform:rotate(205deg)}.c5:before{right:calc(60% + 24px);bottom:calc(100% + 63px);transform:rotate(205deg)}
-.minimap{position:absolute;z-index:18;right:18px;bottom:17px;width:220px;background:rgba(255,255,255,.93);border:1px solid rgba(0,0,0,.22);padding:10px;border-radius:4px;box-shadow:0 4px 18px rgba(0,0,0,.16)}.minimap .title{font-size:10px;font-weight:900;margin-bottom:6px}.minimap img{display:block;width:100%;height:118px;object-fit:cover;object-position:center;opacity:.9}.viewcone{position:absolute;left:21px;bottom:9px;width:0;height:0;border-left:24px solid transparent;border-right:24px solid transparent;border-bottom:55px solid rgba(255,30,30,.68);transform:rotate(-26deg);filter:blur(.2px)}.viewtext{position:absolute;left:70px;bottom:20px;color:red;font-size:10px;font-weight:900}
-.controls{position:absolute;z-index:20;left:18px;bottom:18px;display:flex;gap:6px}.controls button{border:0;background:rgba(255,255,255,.91);border-radius:5px;padding:8px 10px;font-size:10px;font-weight:900;color:#19384f;box-shadow:0 3px 12px rgba(0,0,0,.13)}
-.train{position:absolute;z-index:3;left:-330px;bottom:29%;width:300px;height:75px;filter:drop-shadow(0 9px 7px rgba(0,0,0,.22));display:none}.train.run{display:block;animation:pass 8s linear forwards}.trainbody{position:absolute;inset:10px 25px 9px 0;border-radius:38px 13px 12px 10px;background:linear-gradient(#fff 0 58%,#dce8ef 59% 72%,#1b6fa8 73% 90%,#fff 91%);border:1px solid #a8b3b9}.nose{position:absolute;right:0;top:13px;width:75px;height:48px;border-radius:65% 76% 26% 25%;background:linear-gradient(#fff 0 58%,#dce8ef 59% 72%,#1b6fa8 73% 90%,#fff 91%);transform:skewX(-12deg);border:1px solid #a8b3b9}.windows{position:absolute;left:28px;right:78px;top:22px;height:12px;background:repeating-linear-gradient(90deg,#18384f 0 18px,transparent 19px 28px)}
-@keyframes pass{to{transform:translateX(calc(100vw + 720px))}}
-@media(max-width:800px){
-.brand{top:9px;left:9px;padding:7px 9px}.brand small{display:none}.switcher{top:auto;bottom:10px;width:calc(100% - 18px);justify-content:center}.switcher button{font-size:9px;padding:8px 7px;flex:1}.scene-img{width:125vw;max-height:72vh;top:47%}.callout{font-size:9px;padding:5px 6px}.c1{left:5%;top:19%}.c2{left:37%;top:12%}.c3{right:5%;top:20%}.c4{left:7%;bottom:24%}.c5{right:7%;bottom:23%}.minimap{width:142px;right:8px;bottom:62px;padding:6px}.minimap img{height:77px}.viewtext{font-size:7px;left:48px;bottom:10px}.viewcone{left:14px;bottom:6px;border-left-width:15px;border-right-width:15px;border-bottom-width:36px}.controls{left:8px;bottom:62px}.controls button{padding:7px 8px;font-size:9px}.train{width:210px;bottom:31%}}
-@media(max-width:520px){.c2{display:none}.c4{bottom:29%}.c5{display:none}.minimap{width:126px}.scene-img{width:145vw}.brand b{font-size:11px}}
-</style>
-</head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101f30"><meta name="description" content="Explore three railway bridge access designs in interactive 3D, with source drawings, dimensions and a Vande Bharat-inspired train."><title>Railway Atlas · Bridge design explorer</title><link rel="stylesheet" href="style.css"><script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script></head>
 <body>
-<div class="app">
-  <div class="sky"></div><div class="horizon"></div><div class="ground"></div><div class="ballast"></div><div class="railA"></div><div class="railB"></div>
-  <img id="sceneImg" class="scene-img" src="assets/cbs-0046.svg" alt="Railway structure">
-  <div class="train" id="train"><div class="trainbody"><div class="windows"></div></div><div class="nose"></div></div>
-  <div class="brand"><b id="brandTitle">CBS-0046 · COMPOSITE GIRDER</b><small>INTERACTIVE RAILWAY STRUCTURAL VISUALISATION</small></div>
-  <div class="switcher">
-    <button class="active" data-k="cbs0046">CBS-0046</button>
-    <button data-k="cbs0045">CBS-0045</button>
-    <button data-k="b221">B-221-2024</button>
-  </div>
-  <div class="callout c1" id="l1">SIDE PATHWAY · 0.830 m</div>
-  <div class="callout c2" id="l2">RAILWAY TRACK</div>
-  <div class="callout c3" id="l3">HANDRAIL · 1.200 m</div>
-  <div class="callout c4" id="l4">COMPOSITE GIRDER</div>
-  <div class="callout c5" id="l5">BRACKET SPACING &lt; 7.000 m</div>
-  <div class="minimap"><div class="title" id="mapTitle">DRAWING / VIEW LOCATION</div><img id="mapImg" src="assets/cbs-0046.svg" alt=""><div class="viewcone"></div><div class="viewtext">VIEW LOCATION<br>& DIRECTION</div></div>
-  <div class="controls"><button id="minus">−</button><button id="reset">RESET VIEW</button><button id="plus">＋</button></div>
-  <div class="vignette"></div>
-</div>
-<script>
-const DATA={
- cbs0046:{img:'assets/cbs-0046.svg',title:'CBS-0046 · COMPOSITE GIRDER',labels:['SIDE PATHWAY · 0.830 m','RAILWAY TRACK','HANDRAIL · 1.200 m','COMPOSITE GIRDER','BRACKET SPACING < 7.000 m']},
- cbs0045:{img:'assets/cbs-0045.svg',title:'CBS-0045 · OPEN-WEB GIRDER',labels:['PATHWAY · 0.700 m CLEAR','30.500 m CLEAR SPAN','RAILING · 1.000 m','OPEN-WEB TRUSS','TRUSS DEPTH · 7.315 m']},
- b221:{img:'assets/b-221-2024.svg',title:'B-221-2024 · PIER-CAP LADDER',labels:['ACCESS LADDER · 0.400 m','RCC DECK · 5.200 m','HANDRAIL EXTENSION · 1.000 m','PIER CAP PLATFORM','STEP SPACING · 0.250 m c/c']}
-};
-let scale=1,nextPass=30000,last=performance.now();
-const img=document.getElementById('sceneImg'),train=document.getElementById('train');
-function setProject(k){const d=DATA[k];img.src=d.img;document.getElementById('mapImg').src=d.img;document.getElementById('brandTitle').textContent=d.title;d.labels.forEach((x,i)=>document.getElementById('l'+(i+1)).textContent=x);document.querySelectorAll('.switcher button').forEach(b=>b.classList.toggle('active',b.dataset.k===k));scale=1;img.style.transform='translate(-50%,-50%) scale(1)'}
-document.querySelectorAll('.switcher button').forEach(b=>b.onclick=()=>setProject(b.dataset.k));
-document.getElementById('plus').onclick=()=>{scale=Math.min(1.55,scale+.08);img.style.transform='translate(-50%,-50%) scale('+scale+')'};
-document.getElementById('minus').onclick=()=>{scale=Math.max(.72,scale-.08);img.style.transform='translate(-50%,-50%) scale('+scale+')'};
-document.getElementById('reset').onclick=()=>{scale=1;img.style.transform='translate(-50%,-50%) scale(1)'};
-function runTrain(){train.classList.remove('run');void train.offsetWidth;train.classList.add('run');nextPass=30000}
-function tick(t){const dt=Math.min(100,t-last);last=t;nextPass-=dt;if(nextPass<=0)runTrain();requestAnimationFrame(tick)}
-setTimeout(runTrain,1100);requestAnimationFrame(tick);
-</script>
-</body>
-</html>
+<header class="masthead"><a class="brand" href="./"><span class="brandmark">RA</span><span>RAILWAY <b>ATLAS</b><small>BRIDGE DESIGN EXPLORER</small></span></a><span class="header-note">Indian railway structures <i></i> 3 drawings</span><a class="repo-link" href="https://github.com/sidnayak2007/railway-site" target="_blank" rel="noopener">GitHub ↗</a></header>
+<main>
+<section class="intro"><div><p class="eyebrow">THE DRAWING, IN ANOTHER DIMENSION</p><h1>Explore the structure.</h1></div><p>Three bridge-access designs.<br>Rotate, inspect and look closer.</p></section>
+<nav class="projects" aria-label="Select a railway design">
+<button class="project selected" data-project="cbs-0046" aria-pressed="true"><span class="project-number">01</span><span><small>CBS-0046</small><strong>Composite girder pathway</strong></span><span class="project-arrow">↗</span></button>
+<button class="project" data-project="cbs-0045" aria-pressed="false"><span class="project-number">02</span><span><small>CBS-0045</small><strong>Open-web girder pathway</strong></span><span class="project-arrow">↗</span></button>
+<button class="project" data-project="b-221-2024" aria-pressed="false"><span class="project-number">03</span><span><small>B-221-2024</small><strong>Pier-cap access ladder</strong></span><span class="project-arrow">↗</span></button>
+</nav>
+<div class="workspace"><section class="viewer-card" aria-label="Interactive 3D viewer"><div class="view-toolbar"><div class="view-tabs" role="group" aria-label="Camera view"><button class="active" data-view="overview" aria-pressed="true">Overview</button><button data-view="close" aria-pressed="false">Close-up</button><button data-view="section" aria-pressed="false">Section</button><button data-view="top" aria-pressed="false">Top</button></div><button id="fullscreen" title="Expand viewer" aria-label="Expand viewer">⛶</button></div>
+<div id="viewport"><div id="loading">Preparing the 3D scene…</div><div class="scene-tag"><span id="scene-id">CBS-0046</span><span>3D INTERPRETATION</span></div><div class="view-actions"><button id="zoom-in" aria-label="Zoom in">+</button><button id="zoom-out" aria-label="Zoom out">−</button><button id="reset" aria-label="Reset view" title="Reset view">↺</button></div><div class="viewer-help">Drag to orbit <span>·</span> Scroll / pinch to zoom</div><div id="fallback" hidden><h2>3D isn’t available on this device.</h2><p>You can still explore every visualisation and original PDF below.</p></div></div>
+<div class="train-bar"><div class="train-icon">VB</div><div class="train-copy"><strong>Vande Bharat</strong><span id="train-status" role="status">Crossing the bridge</span></div><div class="train-progress"><div id="progress"></div></div><button id="run-train">Run now</button><button id="pause" aria-pressed="false">Pause</button></div>
+<div class="scene-options"><label><input id="dimensions" type="checkbox" checked> Dimensions</label><label><input id="overhead" type="checkbox" checked> Overhead equipment</label><span>1 scene unit = 1 metre</span></div></section>
+<aside class="details"><p class="eyebrow">DRAWING NOTES</p><h2 id="project-title">Composite girder pathway</h2><p id="project-description"></p><dl id="dimension-list"></dl><div class="source-note" id="source-note"></div><a class="download" id="pdf-link" href="assets/cbs-0046.pdf" target="_blank" rel="noopener">Open original PDF <span>↗</span></a><a class="download secondary" id="pdf-download" href="assets/cbs-0046.pdf" download>Download drawing <span>↓</span></a></aside></div>
+<section class="reference"><div class="section-heading"><div><p class="eyebrow">FROM THE SUPPLIED DRAWING</p><h2>Visualisation board</h2></div><button id="expand-board">Enlarge image ↗</button></div><button class="board-preview" id="board-button" aria-label="Enlarge the selected visualisation board"><img id="board-image" src="assets/cbs-0046.jpg" alt="CBS-0046 installed view, pathway close-up, sectional cutaway and dimensions" loading="lazy"></button></section>
+<footer><strong>Railway Atlas</strong><p>Independent visual study. Source PDFs govern dimensions and connections. 3D geometry is simplified; train, scenery and overhead equipment are illustrative, not a structural or clearance assessment.</p><span>Built by Siddharth Nayak</span></footer>
+</main><dialog id="image-dialog" aria-label="Enlarged visualisation board"><div class="dialog-toolbar"><strong id="dialog-title">Visualisation board</strong><div><button id="image-minus" aria-label="Zoom image out">−</button><button id="image-plus" aria-label="Zoom image in">+</button><button id="close-dialog">Close ×</button></div></div><div id="image-scroller"><img id="large-image" src="assets/cbs-0046.jpg" alt="Enlarged railway visualisation board"></div></dialog>
+<script type="module" src="app.js"></script></body></html>
