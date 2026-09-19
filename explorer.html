@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07182f">
+<title>3D Explorer · Railway Atlas</title>
+<style>
+:root{--navy:#07182f;--navy2:#0a294b;--blue:#0d66ae;--paper:#eef4f9;--ink:#0e2238;--muted:#6a7d91;--line:#d6e2ee;--orange:#ed842d}
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#07182f;color:#fff;overflow:hidden}
+button,a{font:inherit}.shell{height:100dvh;display:grid;grid-template-rows:auto auto 1fr;background:radial-gradient(circle at 75% -10%,#154d7f 0,transparent 35%),#07182f}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.09);background:rgba(5,19,38,.82);backdrop-filter:blur(14px);z-index:20}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}.mark{width:38px;height:38px;border-radius:11px;background:#fff;color:#0d5ea6;display:grid;place-items:center;font-weight:1000}.brand-text{min-width:0}.brand strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand small{display:block;color:#8fb0ce;font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+.back{color:#c1d2e2;text-decoration:none;border:1px solid rgba(255,255,255,.13);padding:9px 12px;border-radius:11px;font-size:12px;font-weight:800;white-space:nowrap}
+.selector{display:flex;gap:7px;padding:10px 14px;background:#0a2340;border-bottom:1px solid rgba(255,255,255,.08);overflow:auto;scrollbar-width:none}
+.selector::-webkit-scrollbar{display:none}.model-btn{white-space:nowrap;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.04);color:#a8c0d7;border-radius:12px;padding:9px 12px;font-size:12px;font-weight:850}.model-btn.active{background:#fff;color:#09233e;border-color:#fff}
+.stage{position:relative;min-height:0;overflow:hidden}.stage canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}.stage canvas:active{cursor:grabbing}
+.hud{position:absolute;left:16px;top:16px;max-width:380px;background:rgba(4,16,31,.78);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:15px 16px;backdrop-filter:blur(13px);box-shadow:0 18px 50px rgba(0,0,0,.23);pointer-events:none}
+.hud .eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#76b8eb;font-weight:900}.hud h1{font-size:22px;line-height:1.05;margin:7px 0 7px;letter-spacing:-.025em}.hud p{font-size:11px;line-height:1.55;color:#9db6cc;margin:0}
+.status{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.pill{font-size:10px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);color:#cbd9e5}
+.controls{position:absolute;right:16px;top:16px;display:flex;flex-direction:column;gap:8px}.control-box{display:flex;gap:6px;padding:7px;border-radius:15px;background:rgba(4,16,31,.78);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(13px)}
+.control-box button{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#d7e3ed;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:850}.control-box button.active{background:#fff;color:#09233e}.control-box button:hover{background:rgba(255,255,255,.13)}.control-box button.active:hover{background:#fff}
+.bottom{position:absolute;left:16px;right:16px;bottom:16px;display:flex;align-items:end;justify-content:space-between;gap:12px;pointer-events:none}
+.dimensions{width:min(520px,70vw);background:rgba(4,16,31,.82);border:1px solid rgba(255,255,255,.12);border-radius:17px;padding:12px 14px;backdrop-filter:blur(13px);display:none}.dimensions.show{display:block}.dimensions strong{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#8abce2}.dimgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.dim{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:8px}.dim b{display:block;font-size:12px;color:#fff}.dim span{display:block;font-size:9px;color:#8da7be;margin-top:2px}
+.traincard{pointer-events:auto;background:rgba(4,16,31,.84);border:1px solid rgba(255,255,255,.12);border-radius:17px;padding:11px 13px;backdrop-filter:blur(13px);min-width:210px}.train-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.live-dot{width:7px;height:7px;background:#55e093;border-radius:50%;box-shadow:0 0 11px #55e093;display:inline-block;margin-right:5px}.traincard strong{font-size:11px}.time{font-size:11px;color:#b8cee0}.bar{height:4px;border-radius:999px;background:rgba(255,255,255,.1);margin:9px 0;overflow:hidden}.bar i{display:block;height:100%;width:0;background:#65b8ef}.train-actions{display:flex;gap:6px}.train-actions button{flex:1;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#dbe6ef;border-radius:9px;padding:7px 9px;font-size:10px;font-weight:850}
+.help{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);font-size:10px;color:#9fb5c9;background:rgba(4,16,31,.65);padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.08);pointer-events:none;white-space:nowrap}
+.badge{position:absolute;right:16px;bottom:112px;background:rgba(237,132,45,.93);color:#fff;border-radius:12px;padding:8px 10px;font-size:10px;font-weight:900;box-shadow:0 8px 25px rgba(0,0,0,.18);pointer-events:none}
+@media(max-width:760px){
+ .top{padding:9px 10px}.mark{width:34px;height:34px}.brand strong{font-size:13px}.back{padding:8px 9px;font-size:10px}.selector{padding:8px 9px}.model-btn{font-size:10px;padding:8px 10px}
+ .hud{left:10px;top:10px;right:10px;max-width:none;padding:11px 12px;border-radius:14px}.hud h1{font-size:17px}.hud p{font-size:10px;max-width:82%}.status{margin-top:7px}.pill{font-size:9px;padding:5px 7px}
+ .controls{right:10px;top:114px}.control-box{flex-direction:column;padding:5px}.control-box button{font-size:10px;padding:7px 8px}
+ .bottom{left:10px;right:10px;bottom:10px;display:block}.dimensions{width:100%;margin-bottom:8px;padding:9px}.dimgrid{grid-template-columns:repeat(2,1fr);gap:5px}.dim{padding:6px}.traincard{min-width:0;width:100%;padding:8px 10px}
+ .help{display:none}.badge{right:10px;bottom:104px;font-size:9px}
+}
+@media(max-height:600px) and (orientation:landscape){.hud p,.status,.badge{display:none}.hud{max-width:260px}.controls{top:12px}.bottom{bottom:8px}.dimensions{max-height:130px;overflow:auto}.traincard{min-width:180px}}
+@media(prefers-reduced-motion:reduce){.live-dot{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+ <header class="top">
+   <div class="brand"><div class="mark">IR</div><div class="brand-text"><strong>Railway Atlas · Interactive 3D</strong><small>Structural visualisation · not for fabrication</small></div></div>
+   <a class="back" href="index.html">← Main site</a>
+ </header>
+ <nav class="selector" aria-label="Choose structure">
+   <button class="model-btn active" data-model="cbs0046">CBS-0046 · Composite Girder</button>
+   <button class="model-btn" data-model="cbs0045">CBS-0045 · Open-Web Girder</button>
+   <button class="model-btn" data-model="b221">B-221-2024 · Access Ladder</button>
+ </nav>
+ <main class="stage" id="stage">
+   <canvas id="canvas" aria-label="Interactive 3D railway model"></canvas>
+   <section class="hud">
+     <div class="eyebrow" id="drawingNo">CBS-0046</div>
+     <h1 id="modelTitle">Composite Girder Side Pathway</h1>
+     <p id="modelDesc">Rotate the model to inspect the track, composite girder and maintenance pathway geometry.</p>
+     <div class="status"><span class="pill">1.676 m broad gauge</span><span class="pill" id="status2">0.830 m pathway</span><span class="pill">Interactive 3D</span></div>
+   </section>
+   <div class="controls">
+     <div class="control-box">
+       <button data-view="iso" class="active">3D</button><button data-view="top">Top</button><button data-view="side">Side</button><button data-view="front">Front</button>
+     </div>
+     <div class="control-box">
+       <button id="dimToggle">Dimensions</button><button id="oheToggle" class="active">OHE</button><button id="reset">Reset</button>
+     </div>
+   </div>
+   <div class="bottom">
+     <aside class="dimensions" id="dimensions"><strong>Confirmed / drawing-led dimensions</strong><div class="dimgrid" id="dimgrid"></div></aside>
+     <section class="traincard">
+       <div class="train-top"><strong><span class="live-dot"></span>Vande Bharat-style pass</strong><span class="time" id="timeText">00:30</span></div>
+       <div class="bar"><i id="trainBar"></i></div>
+       <div class="train-actions"><button id="runTrain">Run now</button><button id="pauseTrain">Pause cycle</button></div>
+     </section>
+   </div>
+   <div class="help">Drag to orbit · wheel / pinch to zoom · double-click to reset</div>
+   <div class="badge">Illustrative 3D model</div>
+ </main>
+</div>
+<script>
+(() => {
+ const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),stage=document.getElementById('stage');
+ const DPR=Math.min(2,window.devicePixelRatio||1);
+ const C={steel:'#405969',steel2:'#667d8c',dark:'#213746',concrete:'#a8b2b8',concrete2:'#7b8992',walk:'#b8c2c7',orange:'#df7c29',red:'#c83c35',rail:'#5d6368',sleeper:'#725944',white:'#f5f7f8',blue:'#176aa8',glass:'#17374f',ohe:'#474f54',ground:'#738a70',pier:'#8a9499',yellow:'#e5b542'};
+ let W=0,H=0,yaw=-0.72,pitch=0.34,zoom=1,drag=false,lastX=0,lastY=0,pinch=0,modelKey='cbs0046',showDims=false,showOHE=true,paused=false,last=performance.now(),trainElapsed=-16000,nextTrain=30000;
+ let staticFaces=[],staticLines=[],dynamicFaces=[],dynamicLines=[],labels=[];
+ const models={
+  cbs0046:{no:'CBS-0046',title:'Composite Girder Side Pathway',desc:'Side pathway arrangement beside a composite girder, with handrail, brackets, track and overhead equipment.',pill:'0.830 m pathway',dims:[['Pathway','0.830 m'],['Handrail','1.200 m'],['Typical span','30.5 m*'],['Bracket spacing','< 7.000 m'],['Track C/L ref.','2.630 m'],['Live load','500 kg/m²']]},
+  cbs0045:{no:'CBS-0045',title:'Open-Web Girder Pathway',desc:'30.5 m open-web girder visualisation with side trusses, track, pathway railing and maintenance access.',pill:'30.500 m clear span',dims:[['Clear span','30.500 m'],['Bearing centres','31.926 m'],['Overall','32.460 m'],['Truss depth','7.315 m'],['Pathway clear','0.700 m'],['Railing','1.000 m']]},
+  b221:{no:'B-221-2024',title:'Pier-Cap Access Ladder',desc:'Pier-cap ladder arrangement leading to the composite deck with broad-gauge track and inspection access.',pill:'0.250 m step c/c',dims:[['Deck width','5.200 m'],['Internal deck','4.800 m'],['Rail gauge','1.676 m'],['Bearing centres','2.400 m'],['Ladder width','0.400 m'],['Step spacing','0.250 m c/c']]}
+ };
+ function resize(){const r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);canvas.width=Math.round(W*DPR);canvas.height=Math.round(H*DPR);canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0)}
+ addEventListener('resize',resize);resize();
+
+ const V=(x,y,z)=>({x,y,z});
+ function box(cx,cy,cz,sx,sy,sz,color=C.steel,edge='rgba(12,30,44,.55)',target=staticFaces){
+   const x0=cx-sx/2,x1=cx+sx/2,y0=cy-sy/2,y1=cy+sy/2,z0=cz-sz/2,z1=cz+sz/2;
+   const p=[V(x0,y0,z0),V(x1,y0,z0),V(x1,y1,z0),V(x0,y1,z0),V(x0,y0,z1),V(x1,y0,z1),V(x1,y1,z1),V(x0,y1,z1)];
+   [[0,1,2,3],[4,7,6,5],[0,4,5,1],[3,2,6,7],[1,5,6,2],[0,3,7,4]].forEach(f=>target.push({pts:f.map(i=>p[i]),color,edge}));
+ }
+ function line(a,b,color=C.dark,width=2,target=staticLines,dash=[]){target.push({a,b,color,width,dash})}
+ function beam(a,b,width=.12,color=C.steel,target=staticLines){line(a,b,color,Math.max(1.5,width*7),target)}
+ function railTrack(len,y=2.15,zCenter=0,targetFaces=staticFaces){
+   box(0,y,zCenter-.838,len,.16,.11,C.rail,'#343a3e',targetFaces);box(0,y,zCenter+.838,len,.16,.11,C.rail,'#343a3e',targetFaces);
+   for(let x=-len/2+.5;x<len/2;x+=1.05)box(x,y-.12,zCenter,0.18,.16,2.55,C.sleeper,'#4b3a2e',targetFaces);
+ }
+ function ohe(len,y,zCenter=0){
+   for(let x=-len/2+2;x<len/2;x+=7){line(V(x,y,zCenter-3.7),V(x,y+4.6,zCenter-3.7),C.ohe,3);line(V(x,y+4.6,zCenter-3.7),V(x,y+4.6,zCenter+1.1),C.ohe,2)}
+   line(V(-len/2,y+4.25,zCenter),V(len/2,y+4.25,zCenter),C.ohe,1.7);line(V(-len/2,y+4.05,zCenter),V(len/2,y+4.05,zCenter),C.ohe,1.2);
+ }
+ function railing(x0,x1,y,z,h,side=1){
+   line(V(x0,y+h,z),V(x1,y+h,z),C.orange,3);line(V(x0,y+h*.55,z),V(x1,y+h*.55,z),C.orange,2);
+   for(let x=x0;x<=x1+.01;x+=2.0)line(V(x,y,z),V(x,y+h,z),C.orange,3);
+ }
+ function build0046(){
+   staticFaces=[];staticLines=[];labels=[];
+   box(0,.3,0,30.5,2.7,3.8,C.steel);box(0,1.9,0,30.5,.28,5.2,C.concrete);
+   railTrack(30.5,2.18,0);
+   box(0,2.05,3.12,30.5,.14,.83,C.walk);
+   for(let x=-14.5;x<=14.5;x+=3.0){beam(V(x,1.0,2.0),V(x,2.0,3.48),.2,C.steel2);beam(V(x,1.0,3.45),V(x,2.0,2.05),.2,C.steel2)}
+   railing(-15.2,15.2,2.1,3.52,1.2);
+   for(let x=-14;x<15;x+=4.4)line(V(x,.4,-1.9),V(x,.4,1.9),C.steel2,2);
+   if(showOHE)ohe(30.5,2.2,0);
+  }
+ function build0045(){
+   staticFaces=[];staticLines=[];labels=[];
+   box(0,.15,0,32.46,.38,5.7,C.steel2);box(0,.55,0,30.5,.16,5.0,C.walk);railTrack(30.5,.82,0);
+   const zSides=[-2.75,2.75],x0=-15.25,panel=5.083;
+   zSides.forEach(z=>{
+     line(V(x0,.6,z),V(15.25,.6,z),C.dark,5);line(V(x0,7.915,z),V(15.25,7.915,z),C.dark,5);
+     for(let i=0;i<=6;i++){const x=x0+i*panel;line(V(x,.6,z),V(x,7.915,z),C.dark,4)}
+     for(let i=0;i<6;i++){const xa=x0+i*panel,xb=xa+panel; if(i%2===0)line(V(xa,.6,z),V(xb,7.915,z),C.dark,4); else line(V(xa,7.915,z),V(xb,.6,z),C.dark,4)}
+   });
+   for(let i=0;i<=6;i++){const x=x0+i*panel;line(V(x,7.915,-2.75),V(x,7.915,2.75),C.steel2,3)}
+   box(0,.78,3.05,30.5,.12,.8,C.walk);railing(-15.1,15.1,.84,3.45,1.0);
+   if(showOHE)ohe(30.5,.82,0);
+  }
+ function buildB221(){
+   staticFaces=[];staticLines=[];labels=[];
+   box(0,5.2,0,18,.65,5.2,C.concrete);box(0,4.58,0,18,.65,3.2,C.steel);railTrack(17.5,5.62,0);
+   box(1.8,1.1,0,3.0,2.2,3.8,C.pier);box(1.8,2.45,0,6.0,.5,5.0,C.concrete2);
+   const top=V(5.2,5.45,3.0),bottom=V(7.0,2.72,3.0),top2=V(5.2,5.45,3.4),bottom2=V(7.0,2.72,3.4);
+   line(top,bottom,C.orange,5);line(top2,bottom2,C.orange,5);
+   for(let t=.05;t<1;t+=.09){const a=V(top.x+(bottom.x-top.x)*t,top.y+(bottom.y-top.y)*t,3.0),b=V(top2.x+(bottom2.x-top2.x)*t,top2.y+(bottom2.y-top2.y)*t,3.4);line(a,b,C.orange,3)}
+   line(V(top.x,top.y,3.0),V(top.x,6.45,3.0),C.red,4);line(V(top.x,top.y,3.4),V(top.x,6.45,3.4),C.red,4);line(V(top.x,6.45,3.0),V(top.x,6.45,3.4),C.red,3);
+   if(showOHE)ohe(17.5,5.62,0);
+  }
+ function build(){if(modelKey==='cbs0046')build0046();else if(modelKey==='cbs0045')build0045();else buildB221()}
+ function rot(p){
+   const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+   let x=p.x*cy-p.z*sy,z=p.x*sy+p.z*cy,y=p.y;
+   let y2=y*cp-z*sp,z2=y*sp+z*cp;
+   return{x,y:y2,z:z2}
+ }
+ function project(p){
+   const r=rot(p),cam=45,scale=Math.min(W,H)*.032*zoom,per=cam/(cam+r.z+12);
+   return{x:W*.5+r.x*scale*per,y:H*.56-r.y*scale*per,z:r.z,per}
+ }
+ function faceDepth(f){return f.pts.reduce((s,p)=>s+rot(p).z,0)/f.pts.length}
+ function drawFace(f){
+   const q=f.pts.map(project);ctx.beginPath();ctx.moveTo(q[0].x,q[0].y);for(let i=1;i<q.length;i++)ctx.lineTo(q[i].x,q[i].y);ctx.closePath();ctx.fillStyle=f.color;ctx.fill();ctx.strokeStyle=f.edge;ctx.lineWidth=1;ctx.stroke()
+ }
+ function drawLine(l){
+   const a=project(l.a),b=project(l.b);ctx.beginPath();ctx.setLineDash(l.dash||[]);ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=l.color;ctx.lineWidth=l.width;ctx.lineCap='round';ctx.stroke();ctx.setLineDash([])
+ }
+ function train(t){
+   dynamicFaces=[];dynamicLines=[];
+   if(t<0||t>14000)return;
+   const len=modelKey==='b221'?17.5:30.5,trackY=modelKey==='b221'?5.86:(modelKey==='cbs0045'?1.06:2.42);
+   const head=-len/2-13+(len+33)*(t/14000);
+   for(let i=0;i<8;i++){
+     const x=head-i*3.25;
+     box(x,trackY+1.08,0,3.0,1.95,2.72,C.white,'#a7b4bd',dynamicFaces);
+     box(x,trackY+.95,1.37,2.85,.22,.05,C.blue,C.blue,dynamicFaces);box(x,trackY+.95,-1.37,2.85,.22,.05,C.blue,C.blue,dynamicFaces);
+     for(let w=-.9;w<=.9;w+=.6){box(x+w,trackY+1.35,1.405,.33,.48,.03,C.glass,C.glass,dynamicFaces);box(x+w,trackY+1.35,-1.405,.33,.48,.03,C.glass,C.glass,dynamicFaces)}
+   }
+ }
+ function background(){
+   const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#7daac7');g.addColorStop(.46,'#cfe0e7');g.addColorStop(.47,'#839e7a');g.addColorStop(1,'#4f6655');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+   ctx.fillStyle='rgba(255,255,255,.12)';for(let i=0;i<9;i++){ctx.beginPath();ctx.arc((i*181+73)%W,(i*97+50)%(H*.35),30+(i%3)*18,0,Math.PI*2);ctx.fill()}
+   ctx.fillStyle='rgba(27,49,39,.18)';ctx.fillRect(0,H*.72,W,H*.28)
+ }
+ function render(now){
+   const dt=Math.min(50,now-last);last=now;if(!paused){nextTrain-=dt;if(nextTrain<=0){trainElapsed=0;nextTrain=30000}if(trainElapsed>=0)trainElapsed+=dt;if(trainElapsed>14000)trainElapsed=-1}
+   train(trainElapsed);background();
+   const faces=staticFaces.concat(dynamicFaces).sort((a,b)=>faceDepth(b)-faceDepth(a));faces.forEach(drawFace);
+   staticLines.concat(dynamicLines).sort((a,b)=>((rot(b.a).z+rot(b.b).z)-(rot(a.a).z+rot(a.b).z))).forEach(drawLine);
+   document.getElementById('timeText').textContent=trainElapsed>=0?'PASSING':('00:'+String(Math.ceil(nextTrain/1000)).padStart(2,'0'));
+   document.getElementById('trainBar').style.width=trainElapsed>=0?Math.min(100,trainElapsed/140):Math.max(0,100-nextTrain/300)+'%';
+   requestAnimationFrame(render)
+ }
+ function setModel(key){
+   modelKey=key;const m=models[key];document.getElementById('drawingNo').textContent=m.no;document.getElementById('modelTitle').textContent=m.title;document.getElementById('modelDesc').textContent=m.desc;document.getElementById('status2').textContent=m.pill;
+   document.getElementById('dimgrid').innerHTML=m.dims.map(d=>'<div class="dim"><b>'+d[1]+'</b><span>'+d[0]+'</span></div>').join('');
+   document.querySelectorAll('.model-btn').forEach(b=>b.classList.toggle('active',b.dataset.model===key));resetView();build()
+ }
+ function resetView(){yaw=-.72;pitch=.34;zoom=1;document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view==='iso'))}
+ document.querySelectorAll('.model-btn').forEach(b=>b.onclick=()=>setModel(b.dataset.model));
+ document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{
+   const v=b.dataset.view;if(v==='iso'){yaw=-.72;pitch=.34}else if(v==='top'){yaw=0;pitch=1.48}else if(v==='side'){yaw=-1.57;pitch=.08}else{yaw=0;pitch=.08}
+   document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x===b))
+ });
+ document.getElementById('reset').onclick=resetView;
+ document.getElementById('dimToggle').onclick=e=>{showDims=!showDims;document.getElementById('dimensions').classList.toggle('show',showDims);e.currentTarget.classList.toggle('active',showDims)};
+ document.getElementById('oheToggle').onclick=e=>{showOHE=!showOHE;e.currentTarget.classList.toggle('active',showOHE);build()};
+ document.getElementById('runTrain').onclick=()=>{trainElapsed=0;nextTrain=30000;paused=false;document.getElementById('pauseTrain').textContent='Pause cycle'};
+ document.getElementById('pauseTrain').onclick=e=>{paused=!paused;e.currentTarget.textContent=paused?'Resume cycle':'Pause cycle'};
+ canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;drag=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});
+ canvas.addEventListener('pointermove',e=>{if(!drag||e.pointerType==='touch')return;yaw+=(e.clientX-lastX)*.008;pitch=Math.max(-1.15,Math.min(1.5,pitch+(e.clientY-lastY)*.006));lastX=e.clientX;lastY=e.clientY});
+ canvas.addEventListener('pointerup',()=>drag=false);
+ canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.45,Math.min(2.7,zoom*(e.deltaY<0?1.09:.92)))},{passive:false});
+ canvas.addEventListener('dblclick',resetView);
+ canvas.addEventListener('touchstart',e=>{if(e.touches.length===1){lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;pinch=0}else if(e.touches.length===2){pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)}},{passive:false});
+ canvas.addEventListener('touchmove',e=>{e.preventDefault();if(e.touches.length===1){yaw+=(e.touches[0].clientX-lastX)*.009;pitch=Math.max(-1.15,Math.min(1.5,pitch+(e.touches[0].clientY-lastY)*.007));lastX=e.touches[0].clientX;lastY=e.touches[0].clientY}else if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(pinch)zoom=Math.max(.45,Math.min(2.7,zoom*d/pinch));pinch=d}},{passive:false});
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){paused=true;document.getElementById('pauseTrain').textContent='Resume cycle'}
+ setModel('cbs0046');setTimeout(()=>{if(!paused){trainElapsed=0;nextTrain=30000}},900);requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
