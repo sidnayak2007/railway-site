@@ -3,122 +3,88 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#eef3f7">
-<title>Railway Structural Visualisation</title>
+<meta name="theme-color" content="#88bce2">
+<title>Railway Visual Explorer</title>
 <style>
-:root{--navy:#08294a;--navy2:#0d3e68;--blue:#2a75a4;--line:#aebdca;--red:#d72f2f;--paper:#fbfcfd;--ink:#0f2539;--muted:#647789;--soft:#e7eef4}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;background:#dce6ee;color:var(--ink)}button{font:inherit;cursor:pointer}
-.app{min-height:100dvh;padding:14px}.sheet{width:min(1540px,100%);margin:auto;background:var(--paper);box-shadow:0 20px 65px rgba(26,48,67,.20);border:1px solid #b8c7d3}
-.titlebar{padding:13px 18px 10px;text-align:center;border-bottom:1px solid #a6b6c3;background:linear-gradient(#fff,#f7fafc)}
-.titlebar h1{margin:0;font-size:clamp(24px,3vw,45px);color:#08294a;letter-spacing:-.035em}.subtitle{font-size:12px;color:#4e6375;margin-top:4px}
-.tabs{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid #b5c3cf;background:#edf3f7;overflow:auto}.tab{white-space:nowrap;border:1px solid #9fb1bf;background:#fff;color:#284a64;padding:9px 13px;border-radius:4px;font-size:11px;font-weight:800}.tab.active{background:#08294a;color:#fff;border-color:#08294a}
-.board{display:grid;grid-template-columns:minmax(0,2.05fr) minmax(310px,.95fr);gap:10px;padding:10px}
-.left{display:grid;grid-template-rows:minmax(390px,1.2fr) minmax(255px,.8fr);gap:10px;min-width:0}.right{display:grid;grid-template-rows:minmax(420px,1fr) auto;gap:10px;min-width:0}
-.panel{position:relative;background:#fff;border:1px solid #9fb3c3;overflow:hidden}.panel-head{position:absolute;z-index:4;left:0;top:0;background:linear-gradient(90deg,#08294a,#0c416f);color:#fff;height:40px;display:flex;align-items:center;gap:10px;padding:0 16px 0 12px;font-weight:900;font-size:14px}.num{font-size:23px}
-.render{position:absolute;inset:40px 0 0;background:linear-gradient(180deg,#fbfdff 0%,#f5f8fa 70%,#e8eef1 100%);overflow:hidden}
-.render svg{width:100%;height:100%;display:block}
-.installed .render{cursor:grab}.installed .render:active{cursor:grabbing}
-.closeup-grid{position:absolute;inset:40px 0 0;display:grid;grid-template-columns:1.15fr .85fr;background:#f8fafc}.close-visual{position:relative;overflow:hidden;border-right:1px solid #c2ced7}.close-info{padding:24px 18px;display:flex;flex-direction:column;justify-content:center}.close-info h3{margin:0 0 8px;color:#08294a;font-size:22px}.close-info p{margin:0;color:#647789;font-size:12px;line-height:1.6}.close-dim{margin-top:15px;color:#b12424;font-weight:900;font-size:14px}
-.section-panel .render{background:#fff}
-.specs{background:#fff;border:1px solid #9fb3c3}.spec-head{background:linear-gradient(90deg,#0a3154,#244d6d);color:#fff;padding:9px 11px;font-size:13px;font-weight:900}.spec-table{width:100%;border-collapse:collapse;font-size:10px}.spec-table td{border-top:1px solid #d2dce4;padding:6px 8px}.spec-table td:first-child{width:58%;color:#223e55}.spec-table td:last-child{font-weight:800;color:#081f33}.warning{margin:8px;border:1px solid #efc8c8;background:#fff0f0;color:#7e2222;padding:8px;font-size:9px;line-height:1.45;font-weight:700}
-.footerline{text-align:center;padding:4px 10px 11px;font-size:9px;color:#5f7384}
-.dimlabel{position:absolute;z-index:5;color:#092a48;font-size:11px;font-weight:900;background:rgba(255,255,255,.88);padding:3px 6px;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.08)}.dimline{position:absolute;z-index:3;height:1px;background:#143b5d;transform-origin:left center}.dimline:before,.dimline:after{content:"";position:absolute;top:-4px;width:1px;height:9px;background:#143b5d}.dimline:before{left:0}.dimline:after{right:0}
-.train{position:absolute;z-index:6;width:210px;height:58px;left:-250px;bottom:28%;filter:drop-shadow(0 8px 7px rgba(0,0,0,.18));display:none}.train.run{display:block;animation:pass 7s linear forwards}.train-body{position:absolute;left:0;right:17px;top:10px;height:37px;border-radius:24px 9px 8px 8px;background:linear-gradient(#fff 0 60%,#dce8ef 61% 75%,#176ca8 76% 91%,#fff 92%);border:1px solid #9daab3}.nose{position:absolute;right:0;top:12px;width:50px;height:34px;border-radius:70% 80% 28% 25%;background:linear-gradient(#fff 0 60%,#dce8ef 61% 75%,#176ca8 76% 91%,#fff 92%);transform:skewX(-12deg);border:1px solid #9daab3}.windows{position:absolute;left:21px;right:52px;top:18px;height:8px;background:repeating-linear-gradient(90deg,#17354c 0 12px,transparent 13px 19px)}
-@keyframes pass{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 600px))}}
-.controls{position:absolute;right:10px;bottom:10px;z-index:9;display:flex;gap:5px}.controls button{border:1px solid #8fa4b4;background:rgba(255,255,255,.92);color:#173751;border-radius:3px;padding:6px 8px;font-size:9px;font-weight:800}.controls button:hover{background:#08294a;color:#fff}
-.mobile-note{display:none}
-@media(max-width:900px){.app{padding:0}.sheet{border:0;box-shadow:none}.board{grid-template-columns:1fr}.left{grid-template-rows:440px 300px}.right{grid-template-rows:430px auto}.panel-head{font-size:12px;height:36px}.render,.closeup-grid{inset:36px 0 0}.closeup-grid{grid-template-columns:1fr}.close-visual{border-right:0;border-bottom:1px solid #c2ced7}.close-info{padding:12px 15px}.close-info p{display:none}.close-info h3{font-size:16px}.mobile-note{display:block;background:#08294a;color:#dceaf5;padding:8px 11px;font-size:10px;text-align:center}}
-@media(max-width:560px){.titlebar{padding:10px 8px}.titlebar h1{font-size:24px}.subtitle{font-size:9px}.tabs{padding:7px}.tab{font-size:9px;padding:8px 9px}.board{padding:6px;gap:6px}.left{grid-template-rows:360px 250px;gap:6px}.right{grid-template-rows:350px auto;gap:6px}.num{font-size:18px}.panel-head{height:34px;padding:0 9px;font-size:10px}.render,.closeup-grid{inset:34px 0 0}.dimlabel{font-size:8px}.spec-table{font-size:9px}.train{width:150px;height:46px}.close-info{display:none}.closeup-grid{grid-template-columns:1fr}}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#8dbce0;color:#111}
+button{font:inherit;cursor:pointer}
+.app{position:relative;width:100%;height:100dvh;overflow:hidden;background:linear-gradient(#85bee9 0 54%,#a9c998 54% 67%,#7f8b75 67% 100%)}
+.sky{position:absolute;inset:0 0 42% 0;background:
+radial-gradient(ellipse at 18% 24%,rgba(255,255,255,.92) 0 5%,transparent 6%),
+radial-gradient(ellipse at 26% 20%,rgba(255,255,255,.86) 0 7%,transparent 8%),
+radial-gradient(ellipse at 72% 18%,rgba(255,255,255,.82) 0 6%,transparent 7%),
+linear-gradient(#86bde5,#d9edf7)}
+.horizon{position:absolute;left:-3%;right:-3%;top:44%;height:19%;background:
+radial-gradient(ellipse at 5% 100%,#2e6b38 0 19%,transparent 20%),
+radial-gradient(ellipse at 14% 100%,#397a40 0 18%,transparent 19%),
+radial-gradient(ellipse at 25% 100%,#2e6d38 0 22%,transparent 23%),
+radial-gradient(ellipse at 38% 100%,#4d884b 0 19%,transparent 20%),
+radial-gradient(ellipse at 50% 100%,#2f6e38 0 22%,transparent 23%),
+radial-gradient(ellipse at 65% 100%,#4b8548 0 20%,transparent 21%),
+radial-gradient(ellipse at 78% 100%,#2e6b38 0 21%,transparent 22%),
+radial-gradient(ellipse at 92% 100%,#438246 0 24%,transparent 25%);
+opacity:.96}
+.ground{position:absolute;left:0;right:0;bottom:0;height:46%;background:linear-gradient(170deg,#9fb493 0 23%,#8c9b82 24% 39%,#69705f 40% 100%)}
+.ballast{position:absolute;left:-10%;right:-10%;bottom:-8%;height:39%;transform:perspective(700px) rotateX(56deg);transform-origin:top;background:
+repeating-linear-gradient(90deg,transparent 0 49px,#725f4c 50px 61px,transparent 62px 92px),
+linear-gradient(#a4a29a 0 23%,#555d5e 24% 30%,#8f918c 31% 43%,#4a5052 44% 52%,#777b78 53%)}
+.railA,.railB{position:absolute;height:7px;background:#353b3e;left:-5%;right:-5%;bottom:18%;transform:rotate(-2deg);box-shadow:0 3px 0 #8a8580}.railB{bottom:25%}
+.scene-img{position:absolute;z-index:4;left:50%;top:50%;width:min(86vw,1320px);max-height:82vh;transform:translate(-50%,-50%) scale(1);object-fit:contain;mix-blend-mode:multiply;filter:drop-shadow(0 18px 14px rgba(0,0,0,.20));transition:.35s ease}
+.vignette{position:absolute;inset:0;z-index:7;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.07),transparent 20%,transparent 82%,rgba(0,0,0,.20))}
+.switcher{position:absolute;z-index:20;left:50%;top:17px;transform:translateX(-50%);display:flex;gap:6px;background:rgba(255,255,255,.88);padding:6px;border-radius:8px;box-shadow:0 5px 20px rgba(0,0,0,.17);backdrop-filter:blur(9px)}
+.switcher button{border:0;background:transparent;padding:8px 11px;border-radius:5px;font-weight:800;font-size:11px;color:#234258;white-space:nowrap}.switcher button.active{background:#123e60;color:#fff}
+.brand{position:absolute;z-index:20;left:18px;top:17px;background:rgba(255,255,255,.9);padding:9px 12px;border-radius:7px;box-shadow:0 5px 18px rgba(0,0,0,.14)}.brand b{font-size:13px;color:#092b46}.brand small{display:block;font-size:8px;color:#617586;margin-top:2px;font-weight:700}
+.callout{position:absolute;z-index:15;background:rgba(255,255,255,.94);border-radius:4px;padding:6px 9px;font-size:12px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.15);white-space:nowrap}.callout:after{content:"";position:absolute;width:2px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.12);transform-origin:top center}.callout:before{content:"";position:absolute;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:9px solid white}
+.c1{left:10%;top:23%}.c1:after{height:77px;left:70%;top:100%;transform:rotate(21deg)}.c1:before{left:calc(70% + 27px);top:calc(100% + 69px);transform:rotate(21deg)}
+.c2{left:39%;top:14%}.c2:after{height:83px;left:48%;top:100%;transform:rotate(4deg)}.c2:before{left:calc(48% + 1px);top:calc(100% + 78px);transform:rotate(4deg)}
+.c3{right:9%;top:22%}.c3:after{height:76px;right:45%;top:100%;transform:rotate(-17deg)}.c3:before{right:calc(45% + 20px);top:calc(100% + 70px);transform:rotate(-17deg)}
+.c4{left:15%;bottom:24%}.c4:after{height:66px;left:66%;bottom:100%;transform:rotate(155deg)}.c4:before{left:calc(66% + 20px);bottom:calc(100% + 59px);transform:rotate(155deg)}
+.c5{right:18%;bottom:21%}.c5:after{height:72px;right:60%;bottom:100%;transform:rotate(205deg)}.c5:before{right:calc(60% + 24px);bottom:calc(100% + 63px);transform:rotate(205deg)}
+.minimap{position:absolute;z-index:18;right:18px;bottom:17px;width:220px;background:rgba(255,255,255,.93);border:1px solid rgba(0,0,0,.22);padding:10px;border-radius:4px;box-shadow:0 4px 18px rgba(0,0,0,.16)}.minimap .title{font-size:10px;font-weight:900;margin-bottom:6px}.minimap img{display:block;width:100%;height:118px;object-fit:cover;object-position:center;opacity:.9}.viewcone{position:absolute;left:21px;bottom:9px;width:0;height:0;border-left:24px solid transparent;border-right:24px solid transparent;border-bottom:55px solid rgba(255,30,30,.68);transform:rotate(-26deg);filter:blur(.2px)}.viewtext{position:absolute;left:70px;bottom:20px;color:red;font-size:10px;font-weight:900}
+.controls{position:absolute;z-index:20;left:18px;bottom:18px;display:flex;gap:6px}.controls button{border:0;background:rgba(255,255,255,.91);border-radius:5px;padding:8px 10px;font-size:10px;font-weight:900;color:#19384f;box-shadow:0 3px 12px rgba(0,0,0,.13)}
+.train{position:absolute;z-index:3;left:-330px;bottom:29%;width:300px;height:75px;filter:drop-shadow(0 9px 7px rgba(0,0,0,.22));display:none}.train.run{display:block;animation:pass 8s linear forwards}.trainbody{position:absolute;inset:10px 25px 9px 0;border-radius:38px 13px 12px 10px;background:linear-gradient(#fff 0 58%,#dce8ef 59% 72%,#1b6fa8 73% 90%,#fff 91%);border:1px solid #a8b3b9}.nose{position:absolute;right:0;top:13px;width:75px;height:48px;border-radius:65% 76% 26% 25%;background:linear-gradient(#fff 0 58%,#dce8ef 59% 72%,#1b6fa8 73% 90%,#fff 91%);transform:skewX(-12deg);border:1px solid #a8b3b9}.windows{position:absolute;left:28px;right:78px;top:22px;height:12px;background:repeating-linear-gradient(90deg,#18384f 0 18px,transparent 19px 28px)}
+@keyframes pass{to{transform:translateX(calc(100vw + 720px))}}
+@media(max-width:800px){
+.brand{top:9px;left:9px;padding:7px 9px}.brand small{display:none}.switcher{top:auto;bottom:10px;width:calc(100% - 18px);justify-content:center}.switcher button{font-size:9px;padding:8px 7px;flex:1}.scene-img{width:125vw;max-height:72vh;top:47%}.callout{font-size:9px;padding:5px 6px}.c1{left:5%;top:19%}.c2{left:37%;top:12%}.c3{right:5%;top:20%}.c4{left:7%;bottom:24%}.c5{right:7%;bottom:23%}.minimap{width:142px;right:8px;bottom:62px;padding:6px}.minimap img{height:77px}.viewtext{font-size:7px;left:48px;bottom:10px}.viewcone{left:14px;bottom:6px;border-left-width:15px;border-right-width:15px;border-bottom-width:36px}.controls{left:8px;bottom:62px}.controls button{padding:7px 8px;font-size:9px}.train{width:210px;bottom:31%}}
+@media(max-width:520px){.c2{display:none}.c4{bottom:29%}.c5{display:none}.minimap{width:126px}.scene-img{width:145vw}.brand b{font-size:11px}}
 </style>
 </head>
 <body>
 <div class="app">
-<section class="sheet">
-  <header class="titlebar">
-    <h1 id="pageTitle">CBS-0046 | COMPOSITE GIRDER SIDE PATHWAY</h1>
-    <div class="subtitle" id="pageSubtitle">Interactive visualisation of supplied railway drawing</div>
-  </header>
-  <nav class="tabs">
-    <button class="tab active" data-project="cbs0046">CBS-0046 · Composite Girder</button>
-    <button class="tab" data-project="cbs0045">CBS-0045 · Open-Web Girder</button>
-    <button class="tab" data-project="b221">B-221-2024 · Access Ladder</button>
-  </nav>
-
-  <div class="board">
-    <div class="left">
-      <section class="panel installed">
-        <div class="panel-head"><span class="num">01</span> INSTALLED VIEW</div>
-        <div class="render" id="installedRender">
-          <svg id="installedSvg" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet"></svg>
-          <div class="train" id="train"><div class="train-body"><div class="windows"></div></div><div class="nose"></div></div>
-          <div class="controls"><button id="zoomOut">−</button><button id="reset">Reset</button><button id="zoomIn">＋</button></div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head"><span class="num">02</span> CLOSE-UP</div>
-        <div class="closeup-grid">
-          <div class="close-visual"><svg id="closeSvg" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid slice"></svg></div>
-          <div class="close-info"><h3 id="closeTitle">Pathway close-up</h3><p id="closeText"></p><div class="close-dim" id="closeDim"></div></div>
-        </div>
-      </section>
-    </div>
-
-    <div class="right">
-      <section class="panel section-panel">
-        <div class="panel-head"><span class="num">03</span> <span id="sectionHead">SECTIONAL CUTAWAY</span></div>
-        <div class="render"><svg id="sectionSvg" viewBox="0 0 540 520" preserveAspectRatio="xMidYMid meet"></svg></div>
-      </section>
-
-      <section class="specs">
-        <div class="spec-head">KEY DIMENSIONS AND NOTES</div>
-        <table class="spec-table"><tbody id="specRows"></tbody></table>
-        <div class="warning" id="warning"></div>
-      </section>
-    </div>
+  <div class="sky"></div><div class="horizon"></div><div class="ground"></div><div class="ballast"></div><div class="railA"></div><div class="railB"></div>
+  <img id="sceneImg" class="scene-img" src="assets/cbs-0046.svg" alt="Railway structure">
+  <div class="train" id="train"><div class="trainbody"><div class="windows"></div></div><div class="nose"></div></div>
+  <div class="brand"><b id="brandTitle">CBS-0046 · COMPOSITE GIRDER</b><small>INTERACTIVE RAILWAY STRUCTURAL VISUALISATION</small></div>
+  <div class="switcher">
+    <button class="active" data-k="cbs0046">CBS-0046</button>
+    <button data-k="cbs0045">CBS-0045</button>
+    <button data-k="b221">B-221-2024</button>
   </div>
-  <div class="footerline">3D-style interpretation of the supplied drawing · dimensions in metres · visualisation only, not for fabrication</div>
-  <div class="mobile-note">Swipe/drag the installed view to rotate slightly · pinch/zoom with controls</div>
-</section>
+  <div class="callout c1" id="l1">SIDE PATHWAY · 0.830 m</div>
+  <div class="callout c2" id="l2">RAILWAY TRACK</div>
+  <div class="callout c3" id="l3">HANDRAIL · 1.200 m</div>
+  <div class="callout c4" id="l4">COMPOSITE GIRDER</div>
+  <div class="callout c5" id="l5">BRACKET SPACING &lt; 7.000 m</div>
+  <div class="minimap"><div class="title" id="mapTitle">DRAWING / VIEW LOCATION</div><img id="mapImg" src="assets/cbs-0046.svg" alt=""><div class="viewcone"></div><div class="viewtext">VIEW LOCATION<br>& DIRECTION</div></div>
+  <div class="controls"><button id="minus">−</button><button id="reset">RESET VIEW</button><button id="plus">＋</button></div>
+  <div class="vignette"></div>
 </div>
-
 <script>
 const DATA={
- cbs0046:{title:'CBS-0046 | COMPOSITE GIRDER SIDE PATHWAY',subtitle:'Interactive visualisation of supplied railway drawing',section:'SECTIONAL CUTAWAY (TRANSVERSE VIEW)',close:'Pathway close-up',closeText:'Maintenance walkway beside the concrete upstand with handrail, runner and support brackets.',closeDim:'0.830 m pathway · 1.200 m handrail',warning:'Plate notes differ in the supplied information. Confirm the final specification from the governing drawing before engineering use.',rows:[['Pathway transverse dimension','0.830 m'],['Handrail above walkway','1.200 m'],['Shown longitudinal bays','4.400 / 4.300 / 4.400 m'],['Bracket spacing','< 7.000 m'],['New stiffener','0.160 × 0.016 m min.'],['Track C/L to pathway ref.','2.630 m'],['Pedestrian design load','500 kg/m²']]},
- cbs0045:{title:'CBS-0045 | OPEN-WEB GIRDER PATHWAY',subtitle:'Source drawing marked PROVISIONAL',section:'CONNECTION / TRANSVERSE CUTAWAY',close:'Pathway close-up',closeText:'Chequered-plate side walkway running inside the truss, with railing posts and support members.',closeDim:'0.700 m clear · 0.800 m overall · 1.000 m railing',warning:'The supplied source drawing is marked PROVISIONAL. Unspecified refuge details remain interpretive.',rows:[['Clear span','30.500 m'],['Bearing centres','31.926 m'],['Overall length','32.460 m'],['Truss depth','7.315 m'],['Pathway clear / overall width','0.700 / 0.800 m'],['Railing height','1.000 m'],['Post spacing','1.500 m'],['Chequered plate','0.006 m'],['Design live load','300 kg/m²']]},
- b221:{title:'B-221-2024 | PIER-CAP ACCESS LADDER',subtitle:'Ladder between pier cap and composite girder deck',section:'LADDER / DECK CUTAWAY',close:'Ladder close-up',closeText:'Inclined access ladder with side angles, steps and handrail extension meeting the composite deck.',closeDim:'0.400 m ladder · 0.250 m step c/c · 1.000 m extension',warning:'Ladder height is “as required”; the model uses an indicative visual height and should not be treated as fabrication geometry.',rows:[['RCC deck overall width','5.200 m'],['Internal deck dimension','4.800 m'],['Rail gauge','1.676 m'],['Bearing centres','2.400 m'],['Ladder transverse dimension','0.400 m'],['Step spacing','0.250 m c/c'],['Handrail extension','1.000 m'],['Minimum clearance at foot','0.500 m']]}
+ cbs0046:{img:'assets/cbs-0046.svg',title:'CBS-0046 · COMPOSITE GIRDER',labels:['SIDE PATHWAY · 0.830 m','RAILWAY TRACK','HANDRAIL · 1.200 m','COMPOSITE GIRDER','BRACKET SPACING < 7.000 m']},
+ cbs0045:{img:'assets/cbs-0045.svg',title:'CBS-0045 · OPEN-WEB GIRDER',labels:['PATHWAY · 0.700 m CLEAR','30.500 m CLEAR SPAN','RAILING · 1.000 m','OPEN-WEB TRUSS','TRUSS DEPTH · 7.315 m']},
+ b221:{img:'assets/b-221-2024.svg',title:'B-221-2024 · PIER-CAP LADDER',labels:['ACCESS LADDER · 0.400 m','RCC DECK · 5.200 m','HANDRAIL EXTENSION · 1.000 m','PIER CAP PLATFORM','STEP SPACING · 0.250 m c/c']}
 };
-let current='cbs0046',angle=0,zoom=1,drag=false,lastX=0,nextTrain=30000,paused=false,last=performance.now();
-const installed=document.getElementById('installedSvg'),closeSvg=document.getElementById('closeSvg'),sectionSvg=document.getElementById('sectionSvg'),train=document.getElementById('train');
-function defs(){return '<defs><linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#94a7b3"/><stop offset=".45" stop-color="#536b7a"/><stop offset="1" stop-color="#253a48"/></linearGradient><linearGradient id="concrete" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e1e1de"/><stop offset="1" stop-color="#a3a8a7"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="12" stdDeviation="10" flood-opacity=".18"/></filter></defs>'}
-function rail(x1,y1,x2,y2){return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#55483d" stroke-width="9"/><line x1="'+x1+'" y1="'+(y1-5)+'" x2="'+x2+'" y2="'+(y2-5)+'" stroke="#2c3338" stroke-width="4"/>'}
-function render0046(){
- installed.innerHTML=defs()+'<g filter="url(#shadow)" transform="translate(15 20) skewY('+angle+')"><polygon points="120,220 790,150 920,235 250,310" fill="url(#concrete)"/><polygon points="250,310 920,235 920,315 250,392" fill="#879399"/><polygon points="130,295 780,228 840,262 188,334" fill="#bcc6ca"/><polygon points="188,334 840,262 840,286 188,360" fill="#e4eaec"/>'+rail(145,255,775,190)+rail(182,280,810,214)+'<g stroke="#607887" stroke-width="14">'+[260,410,560,710].map(x=>'<line x1="'+x+'" y1="335" x2="'+(x+55)+'" y2="390"/>').join('')+'</g><g stroke="#687f8d" stroke-width="10">'+[280,430,580,730].map(x=>'<line x1="'+x+'" y1="285" x2="'+(x+36)+'" y2="365"/><line x1="'+(x+36)+'" y1="285" x2="'+x+'" y2="365"/>').join('')+'</g><g stroke="#697d87" stroke-width="6"><line x1="180" y1="210" x2="180" y2="340"/><line x1="830" y1="150" x2="830" y2="275"/><line x1="180" y1="210" x2="830" y2="150"/><line x1="180" y1="255" x2="830" y2="195"/></g></g><text x="150" y="465" fill="#173c5c" font-size="20" font-weight="800">4.400 m</text><line x1="125" y1="440" x2="390" y2="410" stroke="#173c5c"/><text x="430" y="430" fill="#173c5c" font-size="20" font-weight="800">4.300 m</text>';
- closeSvg.innerHTML=defs()+'<rect width="700" height="300" fill="#f8fafb"/><polygon points="0,170 700,105 700,300 0,300" fill="#dce3e6"/><polygon points="110,155 700,100 700,165 120,220" fill="#aebbc2"/><g stroke="#687d88" stroke-width="7">'+[180,300,420,540,660].map(x=>'<line x1="'+x+'" y1="88" x2="'+x+'" y2="220"/>').join('')+'<line x1="180" y1="88" x2="660" y2="45"/><line x1="180" y1="135" x2="660" y2="92"/></g><polygon points="105,160 700,105 700,205 115,260" fill="#e5eaec"/>';
- sectionSvg.innerHTML=defs()+'<rect width="540" height="520" fill="#fff"/><g transform="translate(25 65)"><rect x="120" y="90" width="270" height="110" fill="url(#concrete)"/><rect x="145" y="200" width="48" height="230" fill="url(#steel)"/><rect x="315" y="200" width="48" height="230" fill="url(#steel)"/><polygon points="390,150 500,150 500,205 390,205" fill="#b9c2c6"/><g stroke="#597282" stroke-width="14"><line x1="390" y1="205" x2="480" y2="335"/><line x1="480" y1="205" x2="390" y2="335"/></g><g stroke="#667d88" stroke-width="7"><line x1="495" y1="110" x2="495" y2="270"/><line x1="445" y1="110" x2="445" y2="270"/><line x1="445" y1="110" x2="495" y2="110"/><line x1="445" y1="165" x2="495" y2="165"/></g><line x1="245" y1="65" x2="245" y2="175" stroke="#8ca0ad" stroke-dasharray="7 6"/><text x="205" y="52" fill="#112a3f" font-size="15">C/L OF TRACK</text><line x1="245" y1="75" x2="445" y2="75" stroke="#143a59"/><text x="310" y="65" fill="#112a3f" font-size="17" font-weight="800">2.630 m</text><line x1="445" y1="95" x2="495" y2="95" stroke="#143a59"/><text x="448" y="84" fill="#112a3f" font-size="16" font-weight="800">0.830 m</text><line x1="515" y1="110" x2="515" y2="270" stroke="#143a59"/><text x="456" y="300" fill="#112a3f" font-size="16" font-weight="800">1.200 m</text></g>';
-}
-function render0045(){
- installed.innerHTML=defs()+'<g filter="url(#shadow)" transform="translate(20 15) skewY('+angle+')"><g fill="none" stroke="url(#steel)" stroke-width="18"><line x1="75" y1="345" x2="925" y2="345"/><line x1="75" y1="110" x2="925" y2="110"/>'+[75,217,359,501,643,785,925].map(x=>'<line x1="'+x+'" y1="110" x2="'+x+'" y2="345"/>').join('')+'<polyline points="75,345 217,110 359,345 501,110 643,345 785,110 925,345"/></g><rect x="70" y="350" width="860" height="40" fill="#87959d"/><rect x="95" y="330" width="810" height="22" fill="#c8d1d5"/>'+rail(95,318,905,318)+rail(95,300,905,300)+'<g stroke="#6b808d" stroke-width="6"><line x1="80" y1="355" x2="920" y2="355"/><line x1="80" y1="305" x2="920" y2="305"/></g></g><line x1="70" y1="70" x2="930" y2="70" stroke="#173c5c"/><text x="410" y="58" fill="#173c5c" font-size="19" font-weight="900">30.500 m CLEAR SPAN</text>';
- closeSvg.innerHTML=defs()+'<rect width="700" height="300" fill="#f7fafb"/><polygon points="0,245 700,145 700,300 0,300" fill="#dfe5e8"/><g stroke="#536b79" stroke-width="17"><line x1="120" y1="300" x2="255" y2="30"/><line x1="330" y1="300" x2="465" y2="30"/><line x1="540" y1="300" x2="675" y2="30"/></g><g stroke="#6b7f8b" stroke-width="7"><line x1="280" y1="78" x2="280" y2="250"/><line x1="450" y1="55" x2="450" y2="225"/><line x1="280" y1="78" x2="450" y2="55"/><line x1="280" y1="135" x2="450" y2="112"/></g><polygon points="210,218 590,164 650,205 270,260" fill="#d9e0e3"/>';
- sectionSvg.innerHTML=defs()+'<rect width="540" height="520" fill="#fff"/><g transform="translate(25 45)"><rect x="90" y="315" width="340" height="48" fill="url(#steel)"/><rect x="235" y="245" width="160" height="70" fill="#b6c1c7"/><rect x="265" y="198" width="90" height="47" fill="url(#steel)"/><rect x="282" y="150" width="55" height="48" fill="url(#steel)"/><rect x="115" y="248" width="80" height="16" fill="#4c3d32"/><rect x="115" y="263" width="80" height="12" fill="#2e3438"/><rect x="385" y="92" width="100" height="16" fill="#ced6d9"/><g stroke="#687d88" stroke-width="7"><line x1="397" y1="30" x2="397" y2="248"/><line x1="475" y1="30" x2="475" y2="248"/><line x1="397" y1="30" x2="475" y2="30"/><line x1="397" y1="100" x2="475" y2="100"/></g><line x1="405" y1="125" x2="475" y2="125" stroke="#173c5c"/><text x="405" y="115" fill="#173c5c" font-size="15" font-weight="900">0.700 m</text><line x1="495" y1="30" x2="495" y2="248" stroke="#173c5c"/><text x="410" y="290" fill="#173c5c" font-size="15" font-weight="900">1.000 m railing</text></g>';
-}
-function renderB221(){
- installed.innerHTML=defs()+'<g filter="url(#shadow)" transform="translate(0 10) skewY('+angle+')"><polygon points="170,130 805,130 925,205 290,205" fill="url(#concrete)"/><polygon points="290,205 925,205 925,275 290,275" fill="#637680"/>'+rail(290,185,865,185)+rail(320,160,835,160)+'<rect x="380" y="330" width="280" height="95" rx="6" fill="#87949a"/><rect x="330" y="305" width="380" height="42" fill="#a4afb4"/><g stroke="#e17d2d" stroke-width="13"><line x1="590" y1="255" x2="700" y2="410"/><line x1="635" y1="255" x2="745" y2="410"/></g><g stroke="#e17d2d" stroke-width="7">'+[0,1,2,3,4,5,6].map(i=>'<line x1="'+(600+i*15)+'" y1="'+(272+i*20)+'" x2="'+(644+i*15)+'" y2="'+(272+i*20)+'"/>').join('')+'</g><g stroke="#cb3d38" stroke-width="7"><line x1="590" y1="255" x2="590" y2="180"/><line x1="635" y1="255" x2="635" y2="180"/><line x1="590" y1="180" x2="635" y2="180"/></g></g><line x1="170" y1="90" x2="925" y2="90" stroke="#173c5c"/><text x="460" y="78" fill="#173c5c" font-size="20" font-weight="900">5.200 m RCC DECK</text>';
- closeSvg.innerHTML=defs()+'<rect width="700" height="300" fill="#f7fafb"/><rect x="60" y="240" width="580" height="38" fill="#939fa5"/><g stroke="#e17d2d" stroke-width="14"><line x1="265" y1="40" x2="155" y2="245"/><line x1="335" y1="40" x2="225" y2="245"/></g><g stroke="#e17d2d" stroke-width="7">'+[0,1,2,3,4,5,6,7].map(i=>'<line x1="'+(255-i*14)+'" y1="'+(62+i*23)+'" x2="'+(325-i*14)+'" y2="'+(62+i*23)+'"/>').join('')+'</g><g stroke="#ca3c37" stroke-width="7"><line x1="265" y1="40" x2="265" y2="0"/><line x1="335" y1="40" x2="335" y2="0"/></g>';
- sectionSvg.innerHTML=defs()+'<rect width="540" height="520" fill="#fff"/><g transform="translate(20 45)"><polygon points="60,80 410,80 470,120 120,120" fill="url(#concrete)"/><rect x="120" y="120" width="350" height="70" fill="#667985"/><rect x="175" y="250" width="190" height="100" fill="#8e9a9f"/><rect x="135" y="225" width="270" height="35" fill="#acb6ba"/><g stroke="#e17d2d" stroke-width="13"><line x1="330" y1="175" x2="410" y2="335"/><line x1="375" y1="175" x2="455" y2="335"/></g><g stroke="#e17d2d" stroke-width="7">'+[0,1,2,3,4,5,6].map(i=>'<line x1="'+(338+i*11)+'" y1="'+(195+i*21)+'" x2="'+(382+i*11)+'" y2="'+(195+i*21)+'"/>').join('')+'</g><line x1="340" y1="375" x2="455" y2="375" stroke="#173c5c"/><text x="360" y="365" fill="#173c5c" font-size="15" font-weight="900">0.400 m</text><text x="260" y="420" fill="#173c5c" font-size="15" font-weight="900">0.250 m step c/c</text></g>';
-}
-function draw(){if(current==='cbs0046')render0046();else if(current==='cbs0045')render0045();else renderB221()}
-function setProject(k){current=k;let d=DATA[k];document.getElementById('pageTitle').textContent=d.title;document.getElementById('pageSubtitle').textContent=d.subtitle;document.getElementById('sectionHead').textContent=d.section;document.getElementById('closeTitle').textContent=d.close;document.getElementById('closeText').textContent=d.closeText;document.getElementById('closeDim').textContent=d.closeDim;document.getElementById('warning').textContent=d.warning;document.getElementById('specRows').innerHTML=d.rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('');document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.project===k));angle=0;zoom=1;installed.style.transform='scale(1)';draw()}
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setProject(b.dataset.project));
-document.getElementById('zoomIn').onclick=()=>{zoom=Math.min(1.8,zoom+.12);installed.style.transform='scale('+zoom+')'};
-document.getElementById('zoomOut').onclick=()=>{zoom=Math.max(.78,zoom-.12);installed.style.transform='scale('+zoom+')'};
-document.getElementById('reset').onclick=()=>{angle=0;zoom=1;installed.style.transform='scale(1)';draw()};
-document.getElementById('installedRender').addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX});
-document.addEventListener('pointerup',()=>drag=false);
-document.addEventListener('pointermove',e=>{if(!drag)return;let dx=e.clientX-lastX;lastX=e.clientX;angle=Math.max(-4,Math.min(4,angle+dx*.03));draw()});
-function runTrain(){train.classList.remove('run');void train.offsetWidth;train.classList.add('run');nextTrain=30000}
-function tick(now){let dt=Math.min(100,now-last);last=now;if(!paused){nextTrain-=dt;if(nextTrain<=0)runTrain()}requestAnimationFrame(tick)}
-setTimeout(runTrain,900);requestAnimationFrame(tick);setProject('cbs0046');
+let scale=1,nextPass=30000,last=performance.now();
+const img=document.getElementById('sceneImg'),train=document.getElementById('train');
+function setProject(k){const d=DATA[k];img.src=d.img;document.getElementById('mapImg').src=d.img;document.getElementById('brandTitle').textContent=d.title;d.labels.forEach((x,i)=>document.getElementById('l'+(i+1)).textContent=x);document.querySelectorAll('.switcher button').forEach(b=>b.classList.toggle('active',b.dataset.k===k));scale=1;img.style.transform='translate(-50%,-50%) scale(1)'}
+document.querySelectorAll('.switcher button').forEach(b=>b.onclick=()=>setProject(b.dataset.k));
+document.getElementById('plus').onclick=()=>{scale=Math.min(1.55,scale+.08);img.style.transform='translate(-50%,-50%) scale('+scale+')'};
+document.getElementById('minus').onclick=()=>{scale=Math.max(.72,scale-.08);img.style.transform='translate(-50%,-50%) scale('+scale+')'};
+document.getElementById('reset').onclick=()=>{scale=1;img.style.transform='translate(-50%,-50%) scale(1)'};
+function runTrain(){train.classList.remove('run');void train.offsetWidth;train.classList.add('run');nextPass=30000}
+function tick(t){const dt=Math.min(100,t-last);last=t;nextPass-=dt;if(nextPass<=0)runTrain();requestAnimationFrame(tick)}
+setTimeout(runTrain,1100);requestAnimationFrame(tick);
 </script>
 </body>
 </html>
