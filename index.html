@@ -3,472 +3,122 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1722">
-<meta name="description" content="Full-screen interactive railway structural explorer for CBS-0046, CBS-0045 and B-221-2024.">
-<title>Railway Structural Explorer</title>
+<meta name="theme-color" content="#eef3f7">
+<title>Railway Structural Visualisation</title>
 <style>
-:root{
-  --ink:#102030;--deep:#0b1722;--deep2:#10283a;--panel:rgba(11,23,34,.86);
-  --glass:rgba(255,255,255,.10);--glass2:rgba(255,255,255,.16);--line:rgba(255,255,255,.16);
-  --paper:#f7f4ed;--white:#fff;--blue:#2f7da5;--blue2:#69b7df;--orange:#e9832f;
-  --red:#d5443e;--green:#4ebe86;--muted:#a9bac6;--shadow:0 20px 70px rgba(0,0,0,.28);
-}
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b1722;color:#fff}
-button,select,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
-.app{height:100dvh;position:relative;overflow:hidden;background:#0b1722}
-.scene{position:absolute;inset:0}
-.scene canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
-.scene canvas:active{cursor:grabbing}
-.vignette{position:absolute;inset:0;pointer-events:none;background:
-  linear-gradient(180deg,rgba(7,16,24,.26),transparent 22%,transparent 70%,rgba(7,16,24,.35)),
-  linear-gradient(90deg,rgba(7,16,24,.18),transparent 28%,transparent 72%,rgba(7,16,24,.12))}
-.topbar{position:absolute;left:18px;right:18px;top:18px;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:14px;pointer-events:none}
-.brand,.top-actions{pointer-events:auto}
-.brand{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:9px 13px 9px 9px;backdrop-filter:blur(18px);box-shadow:var(--shadow)}
-.brand-mark{width:42px;height:42px;border-radius:12px;background:#f5f1e9;color:#152838;display:grid;place-items:center;font-weight:1000;letter-spacing:-.07em;border:1px solid rgba(255,255,255,.45)}
-.brand-copy strong{display:block;font-size:13px;letter-spacing:.03em}.brand-copy small{display:block;color:#91a9ba;font-size:9px;text-transform:uppercase;letter-spacing:.15em;margin-top:2px}
-.top-actions{display:flex;gap:8px;background:var(--panel);padding:7px;border-radius:15px;border:1px solid var(--line);backdrop-filter:blur(18px)}
-.iconbtn,.pillbtn{border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.06);color:#dbe6ed;border-radius:10px;font-weight:850}
-.iconbtn{width:40px;height:40px;display:grid;place-items:center;font-size:15px}.pillbtn{height:40px;padding:0 13px;font-size:11px}
-.iconbtn:hover,.pillbtn:hover{background:rgba(255,255,255,.13)}
-.left-panel{position:absolute;z-index:15;left:18px;top:92px;width:330px;pointer-events:none}
-.info-card{pointer-events:auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:17px;backdrop-filter:blur(18px);box-shadow:var(--shadow)}
-.drawing-no{font-size:10px;color:#7ec0e4;letter-spacing:.17em;text-transform:uppercase;font-weight:900}
-.info-card h1{font-size:26px;line-height:1.03;letter-spacing:-.04em;margin:8px 0 9px}
-.info-card p{font-size:11px;line-height:1.62;color:#a8bbc8;margin:0}
-.quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}.quick span{font-size:9px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);color:#d0dde5}
-.project-switcher{margin-top:10px;pointer-events:auto;background:var(--panel);border:1px solid var(--line);padding:8px;border-radius:15px;backdrop-filter:blur(18px);box-shadow:var(--shadow)}
-.project-switcher label{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.14em;color:#7f9bae;font-weight:900;padding:0 5px 5px}
-.project-switcher select{width:100%;appearance:none;background:#f5f1e9;color:#16283a;border:0;border-radius:10px;padding:11px 34px 11px 11px;font-size:11px;font-weight:850;outline:0}
-.view-toolbar{position:absolute;right:18px;top:92px;z-index:16;display:flex;flex-direction:column;gap:8px}
-.toolbox{display:flex;flex-direction:column;gap:5px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:15px;backdrop-filter:blur(18px);box-shadow:var(--shadow)}
-.toolbox button{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.05);color:#c5d5df;border-radius:9px;padding:9px 10px;font-size:9px;font-weight:900;min-width:74px}
-.toolbox button.active{background:#f5f1e9;color:#14283a;border-color:#f5f1e9}
-.tool-label{text-align:center;color:#718da0;font-size:7px;letter-spacing:.15em;text-transform:uppercase;font-weight:900;padding:3px 0 1px}
-.compass{width:72px;height:72px;margin:auto;border-radius:50%;border:1px solid rgba(255,255,255,.13);position:relative;background:rgba(255,255,255,.04)}
-.compass:before,.compass:after{content:"";position:absolute;background:rgba(255,255,255,.12)}.compass:before{left:50%;top:8px;bottom:8px;width:1px}.compass:after{top:50%;left:8px;right:8px;height:1px}
-.compass span{position:absolute;left:50%;top:6px;transform:translateX(-50%);font-size:9px;font-weight:1000;color:#e16c54}.compass i{position:absolute;left:50%;top:50%;width:5px;height:23px;border-radius:8px;background:linear-gradient(#e16c54 0 50%,#f4f0e8 51%);transform-origin:50% 90%;transform:translate(-50%,-90%) rotate(-35deg)}
-.bottombar{position:absolute;z-index:17;left:18px;right:18px;bottom:18px;display:grid;grid-template-columns:260px 1fr 260px;align-items:end;gap:12px;pointer-events:none}
-.walk-card,.train-card,.center-nav{pointer-events:auto}
-.walk-card,.train-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:13px;backdrop-filter:blur(18px);box-shadow:var(--shadow)}
-.walk-card .label,.train-card .label{font-size:8px;text-transform:uppercase;letter-spacing:.15em;color:#7f9db2;font-weight:900}
-.walk-card strong{display:block;font-size:12px;margin:5px 0 2px}.walk-card small{font-size:9px;color:#8fa8b9}
-.center-nav{justify-self:center;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:7px;backdrop-filter:blur(18px);box-shadow:var(--shadow)}
-.navbtn{height:44px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);color:#dbe5ec;border-radius:11px;padding:0 14px;font-size:10px;font-weight:900}
-.navbtn:hover{background:rgba(255,255,255,.12)}
-.area-name{min-width:170px;text-align:center;padding:0 8px}.area-name b{display:block;font-size:11px}.area-name span{display:block;font-size:8px;color:#8099aa;margin-top:2px}
-.dots{display:flex;gap:4px;justify-content:center;margin-top:5px}.dots i{width:4px;height:4px;border-radius:50%;background:#506878}.dots i.active{width:14px;border-radius:999px;background:#f3efe8}
-.train-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.train-head strong{font-size:10px}.signal{display:inline-block;width:7px;height:7px;border-radius:50%;background:#52db92;box-shadow:0 0 11px #52db92;margin-right:5px}
-.train-time{font-size:11px;font-weight:900}.progress{height:4px;border-radius:999px;background:rgba(255,255,255,.09);margin:9px 0 8px;overflow:hidden}.progress i{height:100%;display:block;background:#66b5dc;width:0}
-.train-actions{display:flex;gap:6px}.train-actions button{flex:1;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.05);color:#cbd9e1;border-radius:9px;padding:7px 6px;font-size:8px;font-weight:900}
-.mobile-pad{display:none;position:absolute;z-index:19;left:12px;bottom:138px;width:114px;height:114px}
-.mobile-pad button{position:absolute;width:36px;height:36px;border-radius:11px;border:1px solid rgba(255,255,255,.15);background:rgba(11,23,34,.78);color:#fff;backdrop-filter:blur(12px);font-size:16px}.m-up{left:39px}.m-down{left:39px;bottom:0}.m-left{left:0;top:39px}.m-right{right:0;top:39px}
-.helper{position:absolute;left:50%;bottom:85px;transform:translateX(-50%);z-index:8;background:rgba(11,23,34,.62);border:1px solid rgba(255,255,255,.08);padding:7px 10px;border-radius:999px;color:#9eb2bf;font-size:8px;pointer-events:none;white-space:nowrap}
-.scene-badge{position:absolute;right:20px;bottom:106px;z-index:7;background:#f2eee6;color:#1b2d3b;padding:7px 9px;border-radius:10px;font-size:8px;font-weight:1000;letter-spacing:.05em;pointer-events:none}
-.drawer{position:fixed;inset:0;z-index:50;display:none;background:rgba(3,10,15,.72);backdrop-filter:blur(10px);padding:22px}
-.drawer.open{display:grid;place-items:center}
-.drawer-card{width:min(1120px,100%);height:min(760px,100%);background:#0d1d29;border:1px solid rgba(255,255,255,.17);border-radius:24px;box-shadow:0 30px 100px rgba(0,0,0,.45);display:grid;grid-template-rows:auto 1fr;overflow:hidden}
-.drawer-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 15px;border-bottom:1px solid rgba(255,255,255,.09)}
-.drawer-title small{display:block;color:#75b9df;font-size:8px;text-transform:uppercase;letter-spacing:.16em;font-weight:900}.drawer-title strong{font-size:13px}
-.drawer-top button{width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#fff;font-size:18px}
-.drawer-content{min-height:0;display:grid;grid-template-columns:1.45fr .55fr}
-.board{min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;background:#eef2f2;padding:16px;overflow:auto}
-.board img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 12px 20px rgba(0,0,0,.16))}
-.specs{overflow:auto;padding:19px;background:#0a1823}
-.specs h3{font-size:18px;margin:0 0 7px}.specs p{font-size:10px;line-height:1.6;color:#96adbd;margin:0 0 14px}
-.spec-table{width:100%;border-collapse:collapse;font-size:10px}.spec-table td{padding:8px 5px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}.spec-table td:first-child{color:#819aac}.spec-table td:last-child{text-align:right;color:#fff;font-weight:800}
-.note{margin-top:14px;background:rgba(233,131,47,.10);border-left:3px solid #e9832f;color:#c9d5dc;padding:11px;border-radius:0 10px 10px 0;font-size:9px;line-height:1.55}
-.dimension-overlay{position:absolute;inset:0;z-index:6;pointer-events:none;display:none}.dimension-overlay.show{display:block}
-.dimtag{position:absolute;background:#f4f0e8;color:#182b39;border:1px solid rgba(0,0,0,.16);padding:6px 8px;border-radius:7px;font-size:9px;font-weight:900;box-shadow:0 5px 14px rgba(0,0,0,.18)}
-.dimtag:after{content:"";position:absolute;height:1px;background:#d6423d;width:46px;right:100%;top:50%}
-#dimA{left:48%;top:25%}#dimB{left:60%;top:47%}#dimC{left:37%;top:67%}
-.toast{position:absolute;z-index:30;left:50%;top:92px;transform:translate(-50%,-10px);opacity:0;background:#f3efe8;color:#172a39;padding:9px 12px;border-radius:11px;font-size:9px;font-weight:900;pointer-events:none;transition:.2s ease}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-@media(max-width:850px){
-  .topbar{left:10px;right:10px;top:10px}.brand{padding:6px 9px 6px 6px}.brand-mark{width:36px;height:36px}.brand-copy strong{font-size:11px}.brand-copy small{font-size:7px}.pillbtn{display:none}
-  .left-panel{left:10px;right:10px;top:66px;width:auto;display:grid;grid-template-columns:1fr 160px;gap:7px}.info-card{padding:11px 12px;border-radius:14px}.info-card h1{font-size:17px;margin:4px 0}.info-card p{font-size:9px;line-height:1.45;max-width:78%}.quick{margin-top:6px}.quick span{font-size:7px;padding:4px 6px}.project-switcher{margin:0;border-radius:14px;padding:6px;align-self:start}.project-switcher label{font-size:6px}.project-switcher select{font-size:8px;padding:9px 25px 9px 8px}
-  .view-toolbar{right:10px;top:176px}.toolbox{padding:4px}.toolbox button{min-width:56px;font-size:7px;padding:7px 6px}.compass{width:55px;height:55px}.compass i{height:18px}
-  .bottombar{left:10px;right:10px;bottom:10px;grid-template-columns:1fr 1fr;gap:7px}.walk-card{display:none}.train-card{grid-column:2;padding:9px;border-radius:14px}.center-nav{grid-column:1;grid-row:1;justify-self:stretch;padding:5px;border-radius:14px}.navbtn{height:38px;padding:0 9px;font-size:8px}.area-name{min-width:0;flex:1;padding:0}.area-name b{font-size:9px}.area-name span{font-size:7px}.train-actions{display:none}
-  .mobile-pad{display:block}.helper{display:none}.scene-badge{right:10px;bottom:92px;font-size:7px}.drawer{padding:8px}.drawer-card{border-radius:17px}.drawer-content{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}.specs{max-height:230px;padding:13px}.specs h3{font-size:15px}
-}
-@media(max-width:560px){
-  .left-panel{grid-template-columns:1fr 122px}.info-card p{display:none}.quick span:nth-child(n+3){display:none}.top-actions{padding:5px}.iconbtn{width:34px;height:34px}.view-toolbar{top:150px}
-  .toolbox button{min-width:49px}.toolbox .tool-label{display:none}.toolbox:nth-child(2) button:nth-of-type(3){display:none}.mobile-pad{bottom:128px}
-  .bottombar{grid-template-columns:1.35fr .65fr}.train-head strong{display:none}.train-card{padding:8px}.train-time{font-size:9px}.progress{margin:6px 0}.scene-badge{display:none}
-}
-@media(max-height:620px) and (orientation:landscape){
-  .left-panel{top:66px;width:270px;right:auto;display:block}.info-card p,.quick{display:none}.project-switcher{margin-top:6px}.view-toolbar{top:66px}.bottombar{bottom:8px}.mobile-pad{display:none}
-}
-@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+:root{--navy:#08294a;--navy2:#0d3e68;--blue:#2a75a4;--line:#aebdca;--red:#d72f2f;--paper:#fbfcfd;--ink:#0f2539;--muted:#647789;--soft:#e7eef4}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;background:#dce6ee;color:var(--ink)}button{font:inherit;cursor:pointer}
+.app{min-height:100dvh;padding:14px}.sheet{width:min(1540px,100%);margin:auto;background:var(--paper);box-shadow:0 20px 65px rgba(26,48,67,.20);border:1px solid #b8c7d3}
+.titlebar{padding:13px 18px 10px;text-align:center;border-bottom:1px solid #a6b6c3;background:linear-gradient(#fff,#f7fafc)}
+.titlebar h1{margin:0;font-size:clamp(24px,3vw,45px);color:#08294a;letter-spacing:-.035em}.subtitle{font-size:12px;color:#4e6375;margin-top:4px}
+.tabs{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid #b5c3cf;background:#edf3f7;overflow:auto}.tab{white-space:nowrap;border:1px solid #9fb1bf;background:#fff;color:#284a64;padding:9px 13px;border-radius:4px;font-size:11px;font-weight:800}.tab.active{background:#08294a;color:#fff;border-color:#08294a}
+.board{display:grid;grid-template-columns:minmax(0,2.05fr) minmax(310px,.95fr);gap:10px;padding:10px}
+.left{display:grid;grid-template-rows:minmax(390px,1.2fr) minmax(255px,.8fr);gap:10px;min-width:0}.right{display:grid;grid-template-rows:minmax(420px,1fr) auto;gap:10px;min-width:0}
+.panel{position:relative;background:#fff;border:1px solid #9fb3c3;overflow:hidden}.panel-head{position:absolute;z-index:4;left:0;top:0;background:linear-gradient(90deg,#08294a,#0c416f);color:#fff;height:40px;display:flex;align-items:center;gap:10px;padding:0 16px 0 12px;font-weight:900;font-size:14px}.num{font-size:23px}
+.render{position:absolute;inset:40px 0 0;background:linear-gradient(180deg,#fbfdff 0%,#f5f8fa 70%,#e8eef1 100%);overflow:hidden}
+.render svg{width:100%;height:100%;display:block}
+.installed .render{cursor:grab}.installed .render:active{cursor:grabbing}
+.closeup-grid{position:absolute;inset:40px 0 0;display:grid;grid-template-columns:1.15fr .85fr;background:#f8fafc}.close-visual{position:relative;overflow:hidden;border-right:1px solid #c2ced7}.close-info{padding:24px 18px;display:flex;flex-direction:column;justify-content:center}.close-info h3{margin:0 0 8px;color:#08294a;font-size:22px}.close-info p{margin:0;color:#647789;font-size:12px;line-height:1.6}.close-dim{margin-top:15px;color:#b12424;font-weight:900;font-size:14px}
+.section-panel .render{background:#fff}
+.specs{background:#fff;border:1px solid #9fb3c3}.spec-head{background:linear-gradient(90deg,#0a3154,#244d6d);color:#fff;padding:9px 11px;font-size:13px;font-weight:900}.spec-table{width:100%;border-collapse:collapse;font-size:10px}.spec-table td{border-top:1px solid #d2dce4;padding:6px 8px}.spec-table td:first-child{width:58%;color:#223e55}.spec-table td:last-child{font-weight:800;color:#081f33}.warning{margin:8px;border:1px solid #efc8c8;background:#fff0f0;color:#7e2222;padding:8px;font-size:9px;line-height:1.45;font-weight:700}
+.footerline{text-align:center;padding:4px 10px 11px;font-size:9px;color:#5f7384}
+.dimlabel{position:absolute;z-index:5;color:#092a48;font-size:11px;font-weight:900;background:rgba(255,255,255,.88);padding:3px 6px;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.08)}.dimline{position:absolute;z-index:3;height:1px;background:#143b5d;transform-origin:left center}.dimline:before,.dimline:after{content:"";position:absolute;top:-4px;width:1px;height:9px;background:#143b5d}.dimline:before{left:0}.dimline:after{right:0}
+.train{position:absolute;z-index:6;width:210px;height:58px;left:-250px;bottom:28%;filter:drop-shadow(0 8px 7px rgba(0,0,0,.18));display:none}.train.run{display:block;animation:pass 7s linear forwards}.train-body{position:absolute;left:0;right:17px;top:10px;height:37px;border-radius:24px 9px 8px 8px;background:linear-gradient(#fff 0 60%,#dce8ef 61% 75%,#176ca8 76% 91%,#fff 92%);border:1px solid #9daab3}.nose{position:absolute;right:0;top:12px;width:50px;height:34px;border-radius:70% 80% 28% 25%;background:linear-gradient(#fff 0 60%,#dce8ef 61% 75%,#176ca8 76% 91%,#fff 92%);transform:skewX(-12deg);border:1px solid #9daab3}.windows{position:absolute;left:21px;right:52px;top:18px;height:8px;background:repeating-linear-gradient(90deg,#17354c 0 12px,transparent 13px 19px)}
+@keyframes pass{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 600px))}}
+.controls{position:absolute;right:10px;bottom:10px;z-index:9;display:flex;gap:5px}.controls button{border:1px solid #8fa4b4;background:rgba(255,255,255,.92);color:#173751;border-radius:3px;padding:6px 8px;font-size:9px;font-weight:800}.controls button:hover{background:#08294a;color:#fff}
+.mobile-note{display:none}
+@media(max-width:900px){.app{padding:0}.sheet{border:0;box-shadow:none}.board{grid-template-columns:1fr}.left{grid-template-rows:440px 300px}.right{grid-template-rows:430px auto}.panel-head{font-size:12px;height:36px}.render,.closeup-grid{inset:36px 0 0}.closeup-grid{grid-template-columns:1fr}.close-visual{border-right:0;border-bottom:1px solid #c2ced7}.close-info{padding:12px 15px}.close-info p{display:none}.close-info h3{font-size:16px}.mobile-note{display:block;background:#08294a;color:#dceaf5;padding:8px 11px;font-size:10px;text-align:center}}
+@media(max-width:560px){.titlebar{padding:10px 8px}.titlebar h1{font-size:24px}.subtitle{font-size:9px}.tabs{padding:7px}.tab{font-size:9px;padding:8px 9px}.board{padding:6px;gap:6px}.left{grid-template-rows:360px 250px;gap:6px}.right{grid-template-rows:350px auto;gap:6px}.num{font-size:18px}.panel-head{height:34px;padding:0 9px;font-size:10px}.render,.closeup-grid{inset:34px 0 0}.dimlabel{font-size:8px}.spec-table{font-size:9px}.train{width:150px;height:46px}.close-info{display:none}.closeup-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
-  <main class="scene" id="stage"><canvas id="canvas" aria-label="Interactive railway structural model"></canvas></main>
-  <div class="vignette"></div>
-
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark">IR</div>
-      <div class="brand-copy"><strong>Railway Structural Explorer</strong><small>Drawing-led interactive study</small></div>
-    </div>
-    <div class="top-actions">
-      <button class="pillbtn" id="helpBtn">Controls</button>
-      <button class="iconbtn" id="drawingBtn" title="Open drawing">▣</button>
-      <button class="iconbtn" id="fullBtn" title="Fullscreen">⛶</button>
-    </div>
+<section class="sheet">
+  <header class="titlebar">
+    <h1 id="pageTitle">CBS-0046 | COMPOSITE GIRDER SIDE PATHWAY</h1>
+    <div class="subtitle" id="pageSubtitle">Interactive visualisation of supplied railway drawing</div>
   </header>
+  <nav class="tabs">
+    <button class="tab active" data-project="cbs0046">CBS-0046 · Composite Girder</button>
+    <button class="tab" data-project="cbs0045">CBS-0045 · Open-Web Girder</button>
+    <button class="tab" data-project="b221">B-221-2024 · Access Ladder</button>
+  </nav>
 
-  <aside class="left-panel">
-    <section class="info-card">
-      <div class="drawing-no" id="drawingNo">CBS-0046</div>
-      <h1 id="modelTitle">Composite Girder Side Pathway</h1>
-      <p id="modelDesc">Walk around the composite girder, track and side maintenance pathway. Use Previous / Next Area exactly like the Bliss City walkthrough.</p>
-      <div class="quick" id="quickFacts"></div>
-    </section>
-    <section class="project-switcher">
-      <label for="projectSelect">Railway drawing</label>
-      <select id="projectSelect">
-        <option value="cbs0046">CBS-0046 · Composite Girder</option>
-        <option value="cbs0045">CBS-0045 · Open-Web Girder</option>
-        <option value="b221">B-221-2024 · Access Ladder</option>
-      </select>
-    </section>
-  </aside>
+  <div class="board">
+    <div class="left">
+      <section class="panel installed">
+        <div class="panel-head"><span class="num">01</span> INSTALLED VIEW</div>
+        <div class="render" id="installedRender">
+          <svg id="installedSvg" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="train" id="train"><div class="train-body"><div class="windows"></div></div><div class="nose"></div></div>
+          <div class="controls"><button id="zoomOut">−</button><button id="reset">Reset</button><button id="zoomIn">＋</button></div>
+        </div>
+      </section>
 
-  <aside class="view-toolbar">
-    <div class="toolbox">
-      <div class="tool-label">Camera</div>
-      <button class="active" data-view="walk">Walkthrough</button>
-      <button data-view="orbit">3D Orbit</button>
-      <button data-view="top">Top</button>
-      <button data-view="side">Side</button>
+      <section class="panel">
+        <div class="panel-head"><span class="num">02</span> CLOSE-UP</div>
+        <div class="closeup-grid">
+          <div class="close-visual"><svg id="closeSvg" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid slice"></svg></div>
+          <div class="close-info"><h3 id="closeTitle">Pathway close-up</h3><p id="closeText"></p><div class="close-dim" id="closeDim"></div></div>
+        </div>
+      </section>
     </div>
-    <div class="toolbox">
-      <div class="tool-label">Layers</div>
-      <button id="dimToggle">Dimensions</button>
-      <button id="oheToggle" class="active">OHE</button>
-      <button id="resetBtn">Reset</button>
-    </div>
-    <div class="toolbox"><div class="compass"><span>N</span><i id="compassNeedle"></i></div></div>
-  </aside>
 
-  <section class="bottombar">
-    <div class="walk-card"><div class="label">Walkthrough location</div><strong id="walkTitle">Track-side overview</strong><small id="walkHint">Drag to look around · scroll to zoom</small></div>
-    <div class="center-nav">
-      <button class="navbtn" id="prevArea">← Previous Area</button>
-      <div class="area-name"><b id="areaName">Track-side overview</b><span id="areaCount">1 / 5</span><div class="dots" id="dots"></div></div>
-      <button class="navbtn" id="nextArea">Next Area →</button>
-    </div>
-    <div class="train-card">
-      <div class="train-head"><strong><span class="signal"></span>Vande Bharat-style pass</strong><span class="train-time" id="trainTime">00:30</span></div>
-      <div class="progress"><i id="trainProgress"></i></div>
-      <div class="train-actions"><button id="runTrain">Run now</button><button id="pauseTrain">Pause cycle</button></div>
-    </div>
-  </section>
+    <div class="right">
+      <section class="panel section-panel">
+        <div class="panel-head"><span class="num">03</span> <span id="sectionHead">SECTIONAL CUTAWAY</span></div>
+        <div class="render"><svg id="sectionSvg" viewBox="0 0 540 520" preserveAspectRatio="xMidYMid meet"></svg></div>
+      </section>
 
-  <div class="mobile-pad">
-    <button class="m-up" data-move="forward">↑</button><button class="m-left" data-move="left">←</button><button class="m-right" data-move="right">→</button><button class="m-down" data-move="back">↓</button>
-  </div>
-  <div class="helper">Drag to orbit · wheel / pinch to zoom · W A S D to move · ← / → changes walkthrough area</div>
-  <div class="scene-badge">ILLUSTRATIVE 3D · NOT FOR FABRICATION</div>
-  <div class="dimension-overlay" id="dimensionOverlay"><div class="dimtag" id="dimA"></div><div class="dimtag" id="dimB"></div><div class="dimtag" id="dimC"></div></div>
-  <div class="toast" id="toast">View changed</div>
-</div>
-
-<div class="drawer" id="drawer">
-  <section class="drawer-card">
-    <header class="drawer-top">
-      <div class="drawer-title"><small id="drawerNo">CBS-0046</small><strong id="drawerTitle">Composite Girder Side Pathway</strong></div>
-      <button id="drawerClose">×</button>
-    </header>
-    <div class="drawer-content">
-      <div class="board"><img id="drawingImage" src="assets/cbs-0046.svg" alt="Railway drawing visual"></div>
-      <aside class="specs">
-        <h3 id="specTitle">Drawing information</h3>
-        <p id="specDesc"></p>
+      <section class="specs">
+        <div class="spec-head">KEY DIMENSIONS AND NOTES</div>
         <table class="spec-table"><tbody id="specRows"></tbody></table>
-        <div class="note" id="specNote"></div>
-      </aside>
+        <div class="warning" id="warning"></div>
+      </section>
     </div>
-  </section>
+  </div>
+  <div class="footerline">3D-style interpretation of the supplied drawing · dimensions in metres · visualisation only, not for fabrication</div>
+  <div class="mobile-note">Swipe/drag the installed view to rotate slightly · pinch/zoom with controls</div>
+</section>
 </div>
 
 <script>
-(function(){
-  var canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d'), stage=document.getElementById('stage');
-  var DPR=Math.min(2,window.devicePixelRatio||1),W=1,H=1;
-  var C={steel:'#3f5665',steel2:'#647b89',steel3:'#203746',concrete:'#a7b2b8',concrete2:'#7d8a92',walk:'#b9c2c5',orange:'#e57c2c',red:'#cc3e38',rail:'#555d62',sleeper:'#70563f',white:'#f5f6f4',blue:'#176ba8',glass:'#16364e',ohe:'#4a5358',pier:'#8a959b',ballast:'#777c79',grass:'#6e8d68'};
-  var yaw=-.68,pitch=.32,zoom=1,focus={x:0,y:1,z:0},drag=false,lastX=0,lastY=0,pinch=0;
-  var modelKey='cbs0046',areaIndex=0,showOHE=true,showDims=false,paused=false,last=performance.now(),trainElapsed=-1,nextTrain=30000;
-  var staticFaces=[],staticLines=[],dynamicFaces=[],dynamicLines=[];
-
-  var models={
-    cbs0046:{
-      no:'CBS-0046',title:'Composite Girder Side Pathway',
-      desc:'Composite girder bridge visualisation with side maintenance pathway, handrail, brackets, broad-gauge track and OHE.',
-      image:'assets/cbs-0046.svg',
-      facts:['0.830 m pathway','1.200 m handrail','1.676 m gauge','500 kg/m² load'],
-      dims:[['Pathway transverse dimension','0.830 m'],['Handrail above walkway','1.200 m'],['Shown longitudinal bays','4.400 / 4.300 / 4.400 m'],['Bracket spacing','Less than 7.000 m'],['New stiffener','0.160 × 0.016 m min.'],['Track C/L reference','2.630 m'],['Pedestrian load','500 kg/m²']],
-      note:'Where the source drawing contains conflicting or amended plate notes, the governing engineering drawing must be verified before use.',
-      tags:['0.830 m','1.200 m','30.5 m illustrative span'],
-      areas:[
-        {name:'Track-side overview',hint:'Overall girder, track and side pathway',yaw:-.68,pitch:.30,zoom:.92,focus:[0,1.4,0]},
-        {name:'Side pathway',hint:'Close view of handrail and walkway edge',yaw:-1.10,pitch:.18,zoom:1.42,focus:[3,2.2,2.8]},
-        {name:'Girder brackets',hint:'Inspect diagonal brackets below pathway',yaw:-.93,pitch:-.02,zoom:1.50,focus:[0,1.15,2.5]},
-        {name:'Track & OHE',hint:'Broad-gauge track and overhead equipment',yaw:.10,pitch:.14,zoom:1.32,focus:[-2,2.45,0]},
-        {name:'Bridge end view',hint:'End-on structural relationship',yaw:-1.56,pitch:.15,zoom:1.02,focus:[12,1.6,0]}
-      ]
-    },
-    cbs0045:{
-      no:'CBS-0045',title:'Open-Web Girder Pathway',
-      desc:'30.5 m open-web girder bridge visualisation with truss panels, track, side pathway, handrail and overhead equipment.',
-      image:'assets/cbs-0045.svg',
-      facts:['30.500 m span','7.315 m truss depth','0.700 m clear path','1.000 m railing'],
-      dims:[['Clear span','30.500 m'],['Bearing centres','31.926 m'],['Overall length','32.460 m'],['Truss depth','7.315 m'],['Pathway clear / overall','0.700 / 0.800 m'],['Railing height','1.000 m'],['Post spacing','1.500 m'],['Chequered plate','0.006 m'],['Design live load','300 kg/m²']],
-      note:'The supplied CBS-0045 drawing is marked PROVISIONAL. The visual model is for presentation and understanding only.',
-      tags:['30.500 m','7.315 m','0.700 m clear'],
-      areas:[
-        {name:'Bridge approach',hint:'Full open-web girder silhouette',yaw:-.66,pitch:.24,zoom:.80,focus:[0,3.1,0]},
-        {name:'Inside truss',hint:'Track-level view through truss panels',yaw:.02,pitch:.05,zoom:1.38,focus:[-5,1.4,0]},
-        {name:'External pathway',hint:'Pathway, handrail and truss relationship',yaw:-1.02,pitch:.14,zoom:1.34,focus:[1,1.3,3]},
-        {name:'Top bracing',hint:'Raised view of top chords and cross members',yaw:-.56,pitch:.72,zoom:1.08,focus:[0,4.5,0]},
-        {name:'Bearing end',hint:'End view through both side trusses',yaw:-1.56,pitch:.17,zoom:.98,focus:[13,3,0]}
-      ]
-    },
-    b221:{
-      no:'B-221-2024',title:'Pier-Cap Access Ladder',
-      desc:'Pier-cap access ladder, composite deck, bearings and broad-gauge track visualised as one walkable inspection scene.',
-      image:'assets/b-221-2024.svg',
-      facts:['5.200 m deck','0.400 m ladder','0.250 m step c/c','1.676 m gauge'],
-      dims:[['RCC deck overall width','5.200 m'],['Internal deck dimension','4.800 m'],['Rail gauge','1.676 m'],['Bearing centre spacing','2.400 m'],['Ladder transverse dimension','0.400 m'],['Step spacing','0.250 m c/c'],['Handrail extension','1.000 m'],['Minimum clearance at foot','0.500 m']],
-      note:'Ladder height is shown as “as required” in the source context; the scene uses an indicative visual height only.',
-      tags:['5.200 m deck','0.400 m ladder','0.250 m steps'],
-      areas:[
-        {name:'Pier-cap overview',hint:'Deck, pier cap and ladder relationship',yaw:-.73,pitch:.31,zoom:1.05,focus:[2,3,0]},
-        {name:'Ladder foot',hint:'Inspection from the pier-cap platform',yaw:-1.00,pitch:-.03,zoom:1.72,focus:[6.7,3.0,3.1]},
-        {name:'Ladder climb',hint:'Close view along ladder side angles and steps',yaw:-1.26,pitch:.18,zoom:1.82,focus:[5.8,4.1,3.2]},
-        {name:'Deck landing',hint:'Handrail extension and deck transition',yaw:-.95,pitch:.12,zoom:1.60,focus:[5.0,5.45,3.1]},
-        {name:'Track level',hint:'Broad-gauge track above composite deck',yaw:.06,pitch:.13,zoom:1.35,focus:[0,5.7,0]}
-      ]
-    }
-  };
-
-  function resize(){
-    var r=stage.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);
-    canvas.width=Math.round(W*DPR);canvas.height=Math.round(H*DPR);canvas.style.width=W+'px';canvas.style.height=H+'px';
-    ctx.setTransform(DPR,0,0,DPR,0,0);
-  }
-  addEventListener('resize',resize);resize();
-
-  function V(x,y,z){return{x:x,y:y,z:z}}
-  function box(cx,cy,cz,sx,sy,sz,color,edge,target){
-    color=color||C.steel;edge=edge||'rgba(12,30,44,.55)';target=target||staticFaces;
-    var x0=cx-sx/2,x1=cx+sx/2,y0=cy-sy/2,y1=cy+sy/2,z0=cz-sz/2,z1=cz+sz/2;
-    var p=[V(x0,y0,z0),V(x1,y0,z0),V(x1,y1,z0),V(x0,y1,z0),V(x0,y0,z1),V(x1,y0,z1),V(x1,y1,z1),V(x0,y1,z1)];
-    [[0,1,2,3],[4,7,6,5],[0,4,5,1],[3,2,6,7],[1,5,6,2],[0,3,7,4]].forEach(function(f){target.push({pts:f.map(function(i){return p[i]}),color:color,edge:edge})});
-  }
-  function line(a,b,color,width,target,dash){(target||staticLines).push({a:a,b:b,color:color||C.steel3,width:width||2,dash:dash||[]})}
-  function beam(a,b,width,color,target){line(a,b,color||C.steel,Math.max(1.5,(width||.12)*7),target)}
-  function ground(len,width,y){
-    box(0,(y||-.28),0,len,.22,width,'#627a61','rgba(42,63,45,.30)');
-    for(var x=-len/2;x<len/2;x+=3.4){line(V(x,y||-.15,-width/2),V(x,y||-.15,width/2),'rgba(218,230,211,.08)',1)}
-  }
-  function track(len,y,z,target){
-    y=y||1;z=z||0;target=target||staticFaces;
-    box(0,y,z-.838,len,.15,.11,C.rail,'#353b3f',target);box(0,y,z+.838,len,.15,.11,C.rail,'#353b3f',target);
-    for(var x=-len/2+.35;x<len/2;x+=.92)box(x,y-.11,z,.16,.15,2.55,C.sleeper,'#4b3a2d',target);
-    box(0,y-.25,z,len,.20,3.0,C.ballast,'rgba(55,62,60,.35)',target);
-  }
-  function ohe(len,y,z){
-    z=z||0;
-    for(var x=-len/2+2;x<len/2;x+=6.6){
-      line(V(x,y,z-3.45),V(x,y+4.65,z-3.45),C.ohe,3);
-      line(V(x,y+4.65,z-3.45),V(x,y+4.65,z+1.1),C.ohe,2);
-      line(V(x,y+4.65,z+1.1),V(x,y+4.15,z+.35),C.ohe,1.3);
-    }
-    line(V(-len/2,y+4.16,z),V(len/2,y+4.16,z),C.ohe,1.5);
-    line(V(-len/2,y+4.38,z),V(len/2,y+4.38,z),C.ohe,1.1);
-  }
-  function railing(x0,x1,y,z,h){
-    line(V(x0,y+h,z),V(x1,y+h,z),C.orange,3);line(V(x0,y+h*.53,z),V(x1,y+h*.53,z),C.orange,2.2);
-    for(var x=x0;x<=x1+.01;x+=1.8)line(V(x,y,z),V(x,y+h,z),C.orange,3);
-  }
-  function trees(len,z){
-    for(var x=-len/2+1;x<len/2;x+=5.4){
-      var zz=z+(Math.sin(x*2.1)*.6);
-      line(V(x,-.1,zz),V(x,1.7,zz),'#5e503c',4);
-      line(V(x,1.2,zz),V(x-.65,2.4,zz-.3),'#3e6e47',6);
-      line(V(x,1.35,zz),V(x+.65,2.35,zz+.2),'#467c50',6);
-    }
-  }
-
-  function build0046(){
-    staticFaces=[];staticLines=[];ground(42,18,-.55);trees(38,-8);
-    box(0,.55,0,30.5,2.6,3.8,C.steel);box(0,1.96,0,30.5,.30,5.15,C.concrete);
-    track(30.5,2.27,0);
-    box(0,2.11,3.10,30.5,.13,.83,C.walk);
-    for(var x=-14.5;x<=14.5;x+=3){beam(V(x,1.1,2.0),V(x,2.0,3.48),.2,C.steel2);beam(V(x,1.1,3.47),V(x,2.0,2.05),.2,C.steel2)}
-    railing(-15.1,15.1,2.14,3.53,1.2);
-    for(var s=-13;s<=13;s+=4.35)line(V(s,.45,-1.9),V(s,.45,1.9),C.steel2,2);
-    if(showOHE)ohe(30.5,2.29,0);
-  }
-  function build0045(){
-    staticFaces=[];staticLines=[];ground(43,18,-.55);trees(39,-8);
-    box(0,.15,0,32.46,.34,5.75,C.steel2);box(0,.54,0,30.5,.15,5.0,C.walk);track(30.5,.81,0);
-    var zs=[-2.78,2.78],x0=-15.25,panel=5.083;
-    zs.forEach(function(z){
-      line(V(x0,.62,z),V(15.25,.62,z),C.steel3,6);line(V(x0,7.94,z),V(15.25,7.94,z),C.steel3,6);
-      for(var i=0;i<=6;i++){var x=x0+i*panel;line(V(x,.62,z),V(x,7.94,z),C.steel3,5)}
-      for(var j=0;j<6;j++){var xa=x0+j*panel,xb=xa+panel;if(j%2===0)line(V(xa,.62,z),V(xb,7.94,z),C.steel3,5);else line(V(xa,7.94,z),V(xb,.62,z),C.steel3,5)}
-    });
-    for(var k=0;k<=6;k++){var xx=x0+k*panel;line(V(xx,7.94,-2.78),V(xx,7.94,2.78),C.steel2,3.5)}
-    for(var b=0;b<6;b++){var xa2=x0+b*panel,xb2=xa2+panel;line(V(xa2,7.94,-2.78),V(xb2,7.94,2.78),C.steel2,2.8);line(V(xa2,7.94,2.78),V(xb2,7.94,-2.78),C.steel2,2.8)}
-    box(0,.78,3.08,30.5,.12,.8,C.walk);railing(-15.0,15.0,.84,3.48,1.0);
-    if(showOHE)ohe(30.5,.84,0);
-  }
-  function buildB221(){
-    staticFaces=[];staticLines=[];ground(28,19,-.55);trees(25,-8);
-    box(0,5.15,0,18,.62,5.2,C.concrete);box(0,4.53,0,18,.64,3.25,C.steel);track(17.5,5.55,0);
-    box(1.8,1.05,0,3.2,2.1,3.9,C.pier);box(1.8,2.43,0,6.1,.52,5.05,C.concrete2);
-    box(4.75,2.73,3.2,4.4,.18,1.5,C.walk);
-    railing(2.7,6.8,2.79,3.90,1.0);
-    var top=V(5.15,5.39,3.0),bottom=V(7.0,2.83,3.0),top2=V(5.15,5.39,3.40),bottom2=V(7.0,2.83,3.40);
-    line(top,bottom,C.orange,5);line(top2,bottom2,C.orange,5);
-    for(var t=.04;t<1;t+=.085){
-      var a=V(top.x+(bottom.x-top.x)*t,top.y+(bottom.y-top.y)*t,3.0),bb=V(top2.x+(bottom2.x-top2.x)*t,top2.y+(bottom2.y-top2.y)*t,3.40);
-      line(a,bb,C.orange,3);
-    }
-    line(V(top.x,top.y,3.0),V(top.x,6.39,3.0),C.red,4);line(V(top.x,top.y,3.4),V(top.x,6.39,3.4),C.red,4);line(V(top.x,6.39,3.0),V(top.x,6.39,3.4),C.red,3);
-    if(showOHE)ohe(17.5,5.57,0);
-  }
-  function build(){if(modelKey==='cbs0046')build0046();else if(modelKey==='cbs0045')build0045();else buildB221()}
-
-  function rot(p){
-    var px=p.x-focus.x,py=p.y-focus.y,pz=p.z-focus.z;
-    var cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
-    var x=px*cy-pz*sy,z=px*sy+pz*cy,y=py;
-    var y2=y*cp-z*sp,z2=y*sp+z*cp;
-    return{x:x,y:y2,z:z2}
-  }
-  function project(p){
-    var r=rot(p),cam=44,scale=Math.min(W,H)*.032*zoom,per=cam/(cam+r.z+12);
-    return{x:W*.5+r.x*scale*per,y:H*.54-r.y*scale*per,z:r.z,per:per}
-  }
-  function depth(f){var s=0;for(var i=0;i<f.pts.length;i++)s+=rot(f.pts[i]).z;return s/f.pts.length}
-  function drawFace(f){
-    var q=f.pts.map(project);ctx.beginPath();ctx.moveTo(q[0].x,q[0].y);for(var i=1;i<q.length;i++)ctx.lineTo(q[i].x,q[i].y);ctx.closePath();ctx.fillStyle=f.color;ctx.fill();ctx.strokeStyle=f.edge;ctx.lineWidth=1;ctx.stroke()
-  }
-  function drawLine(l){
-    var a=project(l.a),b=project(l.b);ctx.beginPath();ctx.setLineDash(l.dash||[]);ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=l.color;ctx.lineWidth=l.width;ctx.lineCap='round';ctx.stroke();ctx.setLineDash([])
-  }
-  function background(){
-    var g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#82b7da');g.addColorStop(.50,'#dce9eb');g.addColorStop(.505,'#7d9c73');g.addColorStop(1,'#526b55');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='rgba(255,255,255,.48)';
-    for(var i=0;i<11;i++){var x=(i*197+80)%W,y=(i*73+42)%(H*.24),r=22+(i%4)*9;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.arc(x+r*.8,y+4,r*.72,0,Math.PI*2);ctx.arc(x-r*.7,y+6,r*.63,0,Math.PI*2);ctx.fill()}
-    var hg=ctx.createLinearGradient(0,H*.48,0,H*.72);hg.addColorStop(0,'rgba(38,68,57,.32)');hg.addColorStop(1,'rgba(37,58,45,0)');ctx.fillStyle=hg;ctx.beginPath();ctx.moveTo(0,H*.63);for(var j=0;j<=12;j++){ctx.lineTo(j*W/12,H*.58-Math.sin(j*1.7)*34)}ctx.lineTo(W,H*.75);ctx.lineTo(0,H*.75);ctx.closePath();ctx.fill()
-  }
-  function train(t){
-    dynamicFaces=[];dynamicLines=[];if(t<0||t>13500)return;
-    var len=modelKey==='b221'?17.5:30.5, trackY=modelKey==='b221'?5.80:(modelKey==='cbs0045'?1.06:2.52);
-    var head=-len/2-14+(len+36)*(t/13500);
-    for(var i=0;i<8;i++){
-      var x=head-i*3.18;box(x,trackY+1.02,0,2.98,1.85,2.70,C.white,'#a3b2ba',dynamicFaces);
-      box(x,trackY+.88,1.38,2.86,.18,.05,C.blue,C.blue,dynamicFaces);box(x,trackY+.88,-1.38,2.86,.18,.05,C.blue,C.blue,dynamicFaces);
-      for(var w=-.9;w<=.9;w+=.6){box(x+w,trackY+1.28,1.405,.32,.44,.03,C.glass,C.glass,dynamicFaces);box(x+w,trackY+1.28,-1.405,.32,.44,.03,C.glass,C.glass,dynamicFaces)}
-      box(x-.95,trackY+.08,-1.0,.52,.24,.18,'#30383e','#20262a',dynamicFaces);box(x+.95,trackY+.08,-1.0,.52,.24,.18,'#30383e','#20262a',dynamicFaces);
-    }
-  }
-  function render(now){
-    var dt=Math.min(45,now-last);last=now;
-    if(!paused){
-      if(trainElapsed>=0){trainElapsed+=dt;if(trainElapsed>13500){trainElapsed=-1;nextTrain=30000}}
-      else{nextTrain-=dt;if(nextTrain<=0){trainElapsed=0;nextTrain=30000}}
-    }
-    train(trainElapsed);background();
-    staticFaces.concat(dynamicFaces).sort(function(a,b){return depth(b)-depth(a)}).forEach(drawFace);
-    staticLines.concat(dynamicLines).sort(function(a,b){return((rot(b.a).z+rot(b.b).z)-(rot(a.a).z+rot(a.b).z))}).forEach(drawLine);
-    var t=document.getElementById('trainTime'),p=document.getElementById('trainProgress');
-    if(trainElapsed>=0){t.textContent='PASSING';p.style.width=Math.min(100,trainElapsed/135)+'%'}
-    else{t.textContent='00:'+String(Math.max(0,Math.ceil(nextTrain/1000))).padStart(2,'0');p.style.width=Math.max(0,100-nextTrain/300)+'%'}
-    document.getElementById('compassNeedle').style.transform='translate(-50%,-90%) rotate('+(-yaw*57.2958-35)+'deg)';
-    requestAnimationFrame(render)
-  }
-
-  function setCamera(a,notify){
-    yaw=a.yaw;pitch=a.pitch;zoom=a.zoom;focus={x:a.focus[0],y:a.focus[1],z:a.focus[2]};
-    document.getElementById('walkTitle').textContent=a.name;document.getElementById('walkHint').textContent=a.hint;
-    document.getElementById('areaName').textContent=a.name;
-    var areas=models[modelKey].areas;document.getElementById('areaCount').textContent=(areaIndex+1)+' / '+areas.length;
-    document.getElementById('dots').innerHTML=areas.map(function(_,i){return'<i class="'+(i===areaIndex?'active':'')+'"></i>'}).join('');
-    if(notify)toast(a.name)
-  }
-  function area(delta){
-    var arr=models[modelKey].areas;areaIndex=(areaIndex+delta+arr.length)%arr.length;setCamera(arr[areaIndex],true);
-    setActiveView('walk');
-  }
-  function setActiveView(v){
-    document.querySelectorAll('[data-view]').forEach(function(b){b.classList.toggle('active',b.dataset.view===v)})
-  }
-  function setModel(key){
-    modelKey=key;areaIndex=0;var m=models[key];
-    document.getElementById('projectSelect').value=key;document.getElementById('drawingNo').textContent=m.no;document.getElementById('modelTitle').textContent=m.title;document.getElementById('modelDesc').textContent=m.desc;
-    document.getElementById('quickFacts').innerHTML=m.facts.map(function(x){return'<span>'+x+'</span>'}).join('');
-    document.getElementById('drawerNo').textContent=m.no;document.getElementById('drawerTitle').textContent=m.title;document.getElementById('drawingImage').src=m.image;document.getElementById('drawingImage').alt=m.title;
-    document.getElementById('specTitle').textContent=m.no+' · Key dimensions';document.getElementById('specDesc').textContent=m.desc;
-    document.getElementById('specRows').innerHTML=m.dims.map(function(r){return'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>'}).join('');document.getElementById('specNote').textContent=m.note;
-    document.getElementById('dimA').textContent=m.tags[0];document.getElementById('dimB').textContent=m.tags[1];document.getElementById('dimC').textContent=m.tags[2];
-    build();setCamera(m.areas[0],false);setActiveView('walk');toast(m.no+' loaded')
-  }
-  function toast(msg){
-    var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove('show')},1600)
-  }
-  function move(dir){
-    var step=.55/Math.max(.55,zoom),sin=Math.sin(yaw),cos=Math.cos(yaw);
-    if(dir==='forward'){focus.x-=sin*step;focus.z-=cos*step}
-    if(dir==='back'){focus.x+=sin*step;focus.z+=cos*step}
-    if(dir==='left'){focus.x-=cos*step;focus.z+=sin*step}
-    if(dir==='right'){focus.x+=cos*step;focus.z-=sin*step}
-  }
-
-  document.getElementById('projectSelect').addEventListener('change',function(){setModel(this.value)});
-  document.getElementById('prevArea').onclick=function(){area(-1)};document.getElementById('nextArea').onclick=function(){area(1)};
-  document.querySelectorAll('[data-view]').forEach(function(b){b.onclick=function(){
-    var v=b.dataset.view;setActiveView(v);
-    if(v==='walk')setCamera(models[modelKey].areas[areaIndex],false);
-    if(v==='orbit'){yaw=-.68;pitch=.32;zoom=.95;focus={x:0,y:modelKey==='b221'?3.2:2,z:0}}
-    if(v==='top'){yaw=0;pitch=1.49;zoom=.92;focus={x:0,y:2,z:0}}
-    if(v==='side'){yaw=-1.57;pitch=.08;zoom=1.02;focus={x:0,y:modelKey==='cbs0045'?3.5:2.4,z:0}}
-  }});
-  document.getElementById('dimToggle').onclick=function(){showDims=!showDims;document.getElementById('dimensionOverlay').classList.toggle('show',showDims);this.classList.toggle('active',showDims);toast(showDims?'Dimensions on':'Dimensions off')};
-  document.getElementById('oheToggle').onclick=function(){showOHE=!showOHE;this.classList.toggle('active',showOHE);build();toast(showOHE?'OHE shown':'OHE hidden')};
-  document.getElementById('resetBtn').onclick=function(){setCamera(models[modelKey].areas[0],true);areaIndex=0;setActiveView('walk')};
-  document.getElementById('drawingBtn').onclick=function(){document.getElementById('drawer').classList.add('open')};
-  document.getElementById('drawerClose').onclick=function(){document.getElementById('drawer').classList.remove('open')};
-  document.getElementById('drawer').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')});
-  document.getElementById('helpBtn').onclick=function(){toast('Drag · zoom · WASD · Previous / Next Area')};
-  document.getElementById('fullBtn').onclick=function(){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}else{document.exitFullscreen&&document.exitFullscreen()}};
-  document.getElementById('runTrain').onclick=function(){trainElapsed=0;nextTrain=30000;paused=false;document.getElementById('pauseTrain').textContent='Pause cycle'};
-  document.getElementById('pauseTrain').onclick=function(){paused=!paused;this.textContent=paused?'Resume cycle':'Pause cycle'};
-  document.querySelectorAll('[data-move]').forEach(function(b){b.addEventListener('click',function(){move(b.dataset.move)})});
-
-  canvas.addEventListener('pointerdown',function(e){if(e.pointerType==='touch')return;drag=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});
-  canvas.addEventListener('pointermove',function(e){if(!drag||e.pointerType==='touch')return;yaw+=(e.clientX-lastX)*.008;pitch=Math.max(-1.18,Math.min(1.50,pitch+(e.clientY-lastY)*.006));lastX=e.clientX;lastY=e.clientY;setActiveView('orbit')});
-  canvas.addEventListener('pointerup',function(){drag=false});
-  canvas.addEventListener('wheel',function(e){e.preventDefault();zoom=Math.max(.45,Math.min(2.9,zoom*(e.deltaY<0?1.08:.92)))},{passive:false});
-  canvas.addEventListener('dblclick',function(){setCamera(models[modelKey].areas[areaIndex],true)});
-  canvas.addEventListener('touchstart',function(e){if(e.touches.length===1){lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;pinch=0}else if(e.touches.length===2){pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)}},{passive:false});
-  canvas.addEventListener('touchmove',function(e){e.preventDefault();if(e.touches.length===1){yaw+=(e.touches[0].clientX-lastX)*.009;pitch=Math.max(-1.18,Math.min(1.50,pitch+(e.touches[0].clientY-lastY)*.007));lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;setActiveView('orbit')}else if(e.touches.length===2){var d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(pinch)zoom=Math.max(.45,Math.min(2.9,zoom*d/pinch));pinch=d}},{passive:false});
-  document.addEventListener('keydown',function(e){
-    if(document.getElementById('drawer').classList.contains('open')){if(e.key==='Escape')document.getElementById('drawer').classList.remove('open');return}
-    var k=e.key.toLowerCase();if(k==='w')move('forward');if(k==='s')move('back');if(k==='a')move('left');if(k==='d')move('right');
-    if(e.key==='ArrowLeft')area(-1);if(e.key==='ArrowRight')area(1);
-  });
-
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches){paused=true;document.getElementById('pauseTrain').textContent='Resume cycle'}
-  setModel('cbs0046');setTimeout(function(){if(!paused){trainElapsed=0;nextTrain=30000}},900);requestAnimationFrame(render);
-})();
+const DATA={
+ cbs0046:{title:'CBS-0046 | COMPOSITE GIRDER SIDE PATHWAY',subtitle:'Interactive visualisation of supplied railway drawing',section:'SECTIONAL CUTAWAY (TRANSVERSE VIEW)',close:'Pathway close-up',closeText:'Maintenance walkway beside the concrete upstand with handrail, runner and support brackets.',closeDim:'0.830 m pathway · 1.200 m handrail',warning:'Plate notes differ in the supplied information. Confirm the final specification from the governing drawing before engineering use.',rows:[['Pathway transverse dimension','0.830 m'],['Handrail above walkway','1.200 m'],['Shown longitudinal bays','4.400 / 4.300 / 4.400 m'],['Bracket spacing','< 7.000 m'],['New stiffener','0.160 × 0.016 m min.'],['Track C/L to pathway ref.','2.630 m'],['Pedestrian design load','500 kg/m²']]},
+ cbs0045:{title:'CBS-0045 | OPEN-WEB GIRDER PATHWAY',subtitle:'Source drawing marked PROVISIONAL',section:'CONNECTION / TRANSVERSE CUTAWAY',close:'Pathway close-up',closeText:'Chequered-plate side walkway running inside the truss, with railing posts and support members.',closeDim:'0.700 m clear · 0.800 m overall · 1.000 m railing',warning:'The supplied source drawing is marked PROVISIONAL. Unspecified refuge details remain interpretive.',rows:[['Clear span','30.500 m'],['Bearing centres','31.926 m'],['Overall length','32.460 m'],['Truss depth','7.315 m'],['Pathway clear / overall width','0.700 / 0.800 m'],['Railing height','1.000 m'],['Post spacing','1.500 m'],['Chequered plate','0.006 m'],['Design live load','300 kg/m²']]},
+ b221:{title:'B-221-2024 | PIER-CAP ACCESS LADDER',subtitle:'Ladder between pier cap and composite girder deck',section:'LADDER / DECK CUTAWAY',close:'Ladder close-up',closeText:'Inclined access ladder with side angles, steps and handrail extension meeting the composite deck.',closeDim:'0.400 m ladder · 0.250 m step c/c · 1.000 m extension',warning:'Ladder height is “as required”; the model uses an indicative visual height and should not be treated as fabrication geometry.',rows:[['RCC deck overall width','5.200 m'],['Internal deck dimension','4.800 m'],['Rail gauge','1.676 m'],['Bearing centres','2.400 m'],['Ladder transverse dimension','0.400 m'],['Step spacing','0.250 m c/c'],['Handrail extension','1.000 m'],['Minimum clearance at foot','0.500 m']]}
+};
+let current='cbs0046',angle=0,zoom=1,drag=false,lastX=0,nextTrain=30000,paused=false,last=performance.now();
+const installed=document.getElementById('installedSvg'),closeSvg=document.getElementById('closeSvg'),sectionSvg=document.getElementById('sectionSvg'),train=document.getElementById('train');
+function defs(){return '<defs><linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#94a7b3"/><stop offset=".45" stop-color="#536b7a"/><stop offset="1" stop-color="#253a48"/></linearGradient><linearGradient id="concrete" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e1e1de"/><stop offset="1" stop-color="#a3a8a7"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="12" stdDeviation="10" flood-opacity=".18"/></filter></defs>'}
+function rail(x1,y1,x2,y2){return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#55483d" stroke-width="9"/><line x1="'+x1+'" y1="'+(y1-5)+'" x2="'+x2+'" y2="'+(y2-5)+'" stroke="#2c3338" stroke-width="4"/>'}
+function render0046(){
+ installed.innerHTML=defs()+'<g filter="url(#shadow)" transform="translate(15 20) skewY('+angle+')"><polygon points="120,220 790,150 920,235 250,310" fill="url(#concrete)"/><polygon points="250,310 920,235 920,315 250,392" fill="#879399"/><polygon points="130,295 780,228 840,262 188,334" fill="#bcc6ca"/><polygon points="188,334 840,262 840,286 188,360" fill="#e4eaec"/>'+rail(145,255,775,190)+rail(182,280,810,214)+'<g stroke="#607887" stroke-width="14">'+[260,410,560,710].map(x=>'<line x1="'+x+'" y1="335" x2="'+(x+55)+'" y2="390"/>').join('')+'</g><g stroke="#687f8d" stroke-width="10">'+[280,430,580,730].map(x=>'<line x1="'+x+'" y1="285" x2="'+(x+36)+'" y2="365"/><line x1="'+(x+36)+'" y1="285" x2="'+x+'" y2="365"/>').join('')+'</g><g stroke="#697d87" stroke-width="6"><line x1="180" y1="210" x2="180" y2="340"/><line x1="830" y1="150" x2="830" y2="275"/><line x1="180" y1="210" x2="830" y2="150"/><line x1="180" y1="255" x2="830" y2="195"/></g></g><text x="150" y="465" fill="#173c5c" font-size="20" font-weight="800">4.400 m</text><line x1="125" y1="440" x2="390" y2="410" stroke="#173c5c"/><text x="430" y="430" fill="#173c5c" font-size="20" font-weight="800">4.300 m</text>';
+ closeSvg.innerHTML=defs()+'<rect width="700" height="300" fill="#f8fafb"/><polygon points="0,170 700,105 700,300 0,300" fill="#dce3e6"/><polygon points="110,155 700,100 700,165 120,220" fill="#aebbc2"/><g stroke="#687d88" stroke-width="7">'+[180,300,420,540,660].map(x=>'<line x1="'+x+'" y1="88" x2="'+x+'" y2="220"/>').join('')+'<line x1="180" y1="88" x2="660" y2="45"/><line x1="180" y1="135" x2="660" y2="92"/></g><polygon points="105,160 700,105 700,205 115,260" fill="#e5eaec"/>';
+ sectionSvg.innerHTML=defs()+'<rect width="540" height="520" fill="#fff"/><g transform="translate(25 65)"><rect x="120" y="90" width="270" height="110" fill="url(#concrete)"/><rect x="145" y="200" width="48" height="230" fill="url(#steel)"/><rect x="315" y="200" width="48" height="230" fill="url(#steel)"/><polygon points="390,150 500,150 500,205 390,205" fill="#b9c2c6"/><g stroke="#597282" stroke-width="14"><line x1="390" y1="205" x2="480" y2="335"/><line x1="480" y1="205" x2="390" y2="335"/></g><g stroke="#667d88" stroke-width="7"><line x1="495" y1="110" x2="495" y2="270"/><line x1="445" y1="110" x2="445" y2="270"/><line x1="445" y1="110" x2="495" y2="110"/><line x1="445" y1="165" x2="495" y2="165"/></g><line x1="245" y1="65" x2="245" y2="175" stroke="#8ca0ad" stroke-dasharray="7 6"/><text x="205" y="52" fill="#112a3f" font-size="15">C/L OF TRACK</text><line x1="245" y1="75" x2="445" y2="75" stroke="#143a59"/><text x="310" y="65" fill="#112a3f" font-size="17" font-weight="800">2.630 m</text><line x1="445" y1="95" x2="495" y2="95" stroke="#143a59"/><text x="448" y="84" fill="#112a3f" font-size="16" font-weight="800">0.830 m</text><line x1="515" y1="110" x2="515" y2="270" stroke="#143a59"/><text x="456" y="300" fill="#112a3f" font-size="16" font-weight="800">1.200 m</text></g>';
+}
+function render0045(){
+ installed.innerHTML=defs()+'<g filter="url(#shadow)" transform="translate(20 15) skewY('+angle+')"><g fill="none" stroke="url(#steel)" stroke-width="18"><line x1="75" y1="345" x2="925" y2="345"/><line x1="75" y1="110" x2="925" y2="110"/>'+[75,217,359,501,643,785,925].map(x=>'<line x1="'+x+'" y1="110" x2="'+x+'" y2="345"/>').join('')+'<polyline points="75,345 217,110 359,345 501,110 643,345 785,110 925,345"/></g><rect x="70" y="350" width="860" height="40" fill="#87959d"/><rect x="95" y="330" width="810" height="22" fill="#c8d1d5"/>'+rail(95,318,905,318)+rail(95,300,905,300)+'<g stroke="#6b808d" stroke-width="6"><line x1="80" y1="355" x2="920" y2="355"/><line x1="80" y1="305" x2="920" y2="305"/></g></g><line x1="70" y1="70" x2="930" y2="70" stroke="#173c5c"/><text x="410" y="58" fill="#173c5c" font-size="19" font-weight="900">30.500 m CLEAR SPAN</text>';
+ closeSvg.innerHTML=defs()+'<rect width="700" height="300" fill="#f7fafb"/><polygon points="0,245 700,145 700,300 0,300" fill="#dfe5e8"/><g stroke="#536b79" stroke-width="17"><line x1="120" y1="300" x2="255" y2="30"/><line x1="330" y1="300" x2="465" y2="30"/><line x1="540" y1="300" x2="675" y2="30"/></g><g stroke="#6b7f8b" stroke-width="7"><line x1="280" y1="78" x2="280" y2="250"/><line x1="450" y1="55" x2="450" y2="225"/><line x1="280" y1="78" x2="450" y2="55"/><line x1="280" y1="135" x2="450" y2="112"/></g><polygon points="210,218 590,164 650,205 270,260" fill="#d9e0e3"/>';
+ sectionSvg.innerHTML=defs()+'<rect width="540" height="520" fill="#fff"/><g transform="translate(25 45)"><rect x="90" y="315" width="340" height="48" fill="url(#steel)"/><rect x="235" y="245" width="160" height="70" fill="#b6c1c7"/><rect x="265" y="198" width="90" height="47" fill="url(#steel)"/><rect x="282" y="150" width="55" height="48" fill="url(#steel)"/><rect x="115" y="248" width="80" height="16" fill="#4c3d32"/><rect x="115" y="263" width="80" height="12" fill="#2e3438"/><rect x="385" y="92" width="100" height="16" fill="#ced6d9"/><g stroke="#687d88" stroke-width="7"><line x1="397" y1="30" x2="397" y2="248"/><line x1="475" y1="30" x2="475" y2="248"/><line x1="397" y1="30" x2="475" y2="30"/><line x1="397" y1="100" x2="475" y2="100"/></g><line x1="405" y1="125" x2="475" y2="125" stroke="#173c5c"/><text x="405" y="115" fill="#173c5c" font-size="15" font-weight="900">0.700 m</text><line x1="495" y1="30" x2="495" y2="248" stroke="#173c5c"/><text x="410" y="290" fill="#173c5c" font-size="15" font-weight="900">1.000 m railing</text></g>';
+}
+function renderB221(){
+ installed.innerHTML=defs()+'<g filter="url(#shadow)" transform="translate(0 10) skewY('+angle+')"><polygon points="170,130 805,130 925,205 290,205" fill="url(#concrete)"/><polygon points="290,205 925,205 925,275 290,275" fill="#637680"/>'+rail(290,185,865,185)+rail(320,160,835,160)+'<rect x="380" y="330" width="280" height="95" rx="6" fill="#87949a"/><rect x="330" y="305" width="380" height="42" fill="#a4afb4"/><g stroke="#e17d2d" stroke-width="13"><line x1="590" y1="255" x2="700" y2="410"/><line x1="635" y1="255" x2="745" y2="410"/></g><g stroke="#e17d2d" stroke-width="7">'+[0,1,2,3,4,5,6].map(i=>'<line x1="'+(600+i*15)+'" y1="'+(272+i*20)+'" x2="'+(644+i*15)+'" y2="'+(272+i*20)+'"/>').join('')+'</g><g stroke="#cb3d38" stroke-width="7"><line x1="590" y1="255" x2="590" y2="180"/><line x1="635" y1="255" x2="635" y2="180"/><line x1="590" y1="180" x2="635" y2="180"/></g></g><line x1="170" y1="90" x2="925" y2="90" stroke="#173c5c"/><text x="460" y="78" fill="#173c5c" font-size="20" font-weight="900">5.200 m RCC DECK</text>';
+ closeSvg.innerHTML=defs()+'<rect width="700" height="300" fill="#f7fafb"/><rect x="60" y="240" width="580" height="38" fill="#939fa5"/><g stroke="#e17d2d" stroke-width="14"><line x1="265" y1="40" x2="155" y2="245"/><line x1="335" y1="40" x2="225" y2="245"/></g><g stroke="#e17d2d" stroke-width="7">'+[0,1,2,3,4,5,6,7].map(i=>'<line x1="'+(255-i*14)+'" y1="'+(62+i*23)+'" x2="'+(325-i*14)+'" y2="'+(62+i*23)+'"/>').join('')+'</g><g stroke="#ca3c37" stroke-width="7"><line x1="265" y1="40" x2="265" y2="0"/><line x1="335" y1="40" x2="335" y2="0"/></g>';
+ sectionSvg.innerHTML=defs()+'<rect width="540" height="520" fill="#fff"/><g transform="translate(20 45)"><polygon points="60,80 410,80 470,120 120,120" fill="url(#concrete)"/><rect x="120" y="120" width="350" height="70" fill="#667985"/><rect x="175" y="250" width="190" height="100" fill="#8e9a9f"/><rect x="135" y="225" width="270" height="35" fill="#acb6ba"/><g stroke="#e17d2d" stroke-width="13"><line x1="330" y1="175" x2="410" y2="335"/><line x1="375" y1="175" x2="455" y2="335"/></g><g stroke="#e17d2d" stroke-width="7">'+[0,1,2,3,4,5,6].map(i=>'<line x1="'+(338+i*11)+'" y1="'+(195+i*21)+'" x2="'+(382+i*11)+'" y2="'+(195+i*21)+'"/>').join('')+'</g><line x1="340" y1="375" x2="455" y2="375" stroke="#173c5c"/><text x="360" y="365" fill="#173c5c" font-size="15" font-weight="900">0.400 m</text><text x="260" y="420" fill="#173c5c" font-size="15" font-weight="900">0.250 m step c/c</text></g>';
+}
+function draw(){if(current==='cbs0046')render0046();else if(current==='cbs0045')render0045();else renderB221()}
+function setProject(k){current=k;let d=DATA[k];document.getElementById('pageTitle').textContent=d.title;document.getElementById('pageSubtitle').textContent=d.subtitle;document.getElementById('sectionHead').textContent=d.section;document.getElementById('closeTitle').textContent=d.close;document.getElementById('closeText').textContent=d.closeText;document.getElementById('closeDim').textContent=d.closeDim;document.getElementById('warning').textContent=d.warning;document.getElementById('specRows').innerHTML=d.rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('');document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.project===k));angle=0;zoom=1;installed.style.transform='scale(1)';draw()}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setProject(b.dataset.project));
+document.getElementById('zoomIn').onclick=()=>{zoom=Math.min(1.8,zoom+.12);installed.style.transform='scale('+zoom+')'};
+document.getElementById('zoomOut').onclick=()=>{zoom=Math.max(.78,zoom-.12);installed.style.transform='scale('+zoom+')'};
+document.getElementById('reset').onclick=()=>{angle=0;zoom=1;installed.style.transform='scale(1)';draw()};
+document.getElementById('installedRender').addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX});
+document.addEventListener('pointerup',()=>drag=false);
+document.addEventListener('pointermove',e=>{if(!drag)return;let dx=e.clientX-lastX;lastX=e.clientX;angle=Math.max(-4,Math.min(4,angle+dx*.03));draw()});
+function runTrain(){train.classList.remove('run');void train.offsetWidth;train.classList.add('run');nextTrain=30000}
+function tick(now){let dt=Math.min(100,now-last);last=now;if(!paused){nextTrain-=dt;if(nextTrain<=0)runTrain()}requestAnimationFrame(tick)}
+setTimeout(runTrain,900);requestAnimationFrame(tick);setProject('cbs0046');
 </script>
 </body>
 </html>
