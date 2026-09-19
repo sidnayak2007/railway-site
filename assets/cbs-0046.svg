@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760">
+ <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#cce7f7"/><stop offset="1" stop-color="#f5fafc"/></linearGradient><linearGradient id="steel" x2="0" y2="1"><stop stop-color="#52687a"/><stop offset="1" stop-color="#223746"/></linearGradient><pattern id="grid" width="35" height="35" patternUnits="userSpaceOnUse"><path d="M35 0H0V35" fill="none" stroke="#c7d5df" stroke-width="1"/></pattern></defs>
+ <rect width="1200" height="760" fill="url(#sky)"/><rect y="520" width="1200" height="240" fill="#d9e6e7"/><rect width="1200" height="760" fill="url(#grid)" opacity=".24"/>
+ <g transform="translate(90 130)">
+  <polygon points="120,285 950,285 1030,350 200,350" fill="#6f8392"/><polygon points="200,350 1030,350 1030,430 200,430" fill="#334958"/>
+  <polygon points="120,285 200,350 200,430 120,365" fill="#425a6a"/>
+  <g stroke="#19364c" stroke-width="13" fill="none"><path d="M155 270V105M260 325V155M365 325V155M470 325V155M575 325V155M680 325V155M785 325V155M890 325V155"/><path d="M155 105H890"/><path d="M260 155L365 325M365 155L260 325M470 155L575 325M575 155L470 325M680 155L785 325M785 155L680 325"/></g>
+  <polygon points="90,365 200,430 920,430 860,390 175,390" fill="#b6c0c7"/>
+  <g stroke="#e67928" stroke-width="7" fill="none"><path d="M85 360V190M190 415V245M300 415V245M410 415V245M520 415V245M630 415V245M740 415V245M850 415V245"/><path d="M85 190L850 245"/></g>
+  <g stroke="#8998a3" stroke-width="5"><path d="M95 390H875"/><path d="M95 408H890"/><path d="M100 425H910"/></g>
+  <g stroke="#d03a35" stroke-width="4" fill="none"><path d="M70 455H900"/><path d="M70 448v14M900 448v14"/></g>
+  <text x="400" y="482" font-family="Arial" font-size="24" font-weight="700" fill="#b32f2b">0.830 m SIDE PATHWAY</text>
+  <path d="M885 245V115" stroke="#d03a35" stroke-width="4"/><path d="M878 115h14M878 245h14" stroke="#d03a35" stroke-width="4"/>
+  <text x="910" y="185" font-family="Arial" font-size="22" font-weight="700" fill="#b32f2b">1.200 m</text>
+  <text x="18" y="55" font-family="Arial" font-size="36" font-weight="800" fill="#092a48">CBS-0046</text><text x="18" y="90" font-family="Arial" font-size="24" fill="#365b74">Composite Girder Side Pathway</text>
+ </g></svg>
